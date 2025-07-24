@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, User, Calendar, CheckCircle, Clock, AlertTriangle, FileText, Upload, Download, Mail, Phone } from "lucide-react"
+import { format, parseISO } from 'date-fns'
 
 export type Task = {
   name: string
@@ -133,6 +134,14 @@ const getTaskStatusIcon = (status: string) => {
   }
 }
 
+const formatDate = (dateString: string) => {
+  try {
+    return format(parseISO(dateString), 'MM/dd/yyyy')
+  } catch (e) {
+    return dateString
+  }
+}
+
 export default function OnboardingPage() {
   const router = useRouter()
 
@@ -195,7 +204,7 @@ export default function OnboardingPage() {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Start Date: {new Date(employee.startDate).toLocaleDateString()}
+                    Start Date: {formatDate(employee.startDate)}
                   </div>
                 </div>
 
@@ -226,7 +235,7 @@ export default function OnboardingPage() {
                           </span>
                         </div>
                         <span className="text-xs text-gray-500">
-                          {new Date(task.dueDate).toLocaleDateString()}
+                          {formatDate(task.dueDate)}
                         </span>
                       </div>
                     ))}
@@ -243,7 +252,12 @@ export default function OnboardingPage() {
                   >
                     View Details
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => router.push(`/hr/onboarding/${employee.id}/update-progress`)}
+                  >
                     Update Progress
                   </Button>
                 </div>
