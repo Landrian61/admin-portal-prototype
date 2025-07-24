@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Users, Calendar, Clock, TrendingUp, Plus, Eye } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
+import { useRouter } from "next/navigation"
 
 const hiringData = [
   { month: "Jan", applications: 45, hired: 8 },
@@ -30,6 +31,8 @@ const candidateTracking = [
 ]
 
 export default function HRDashboard() {
+  const router = useRouter()
+
   return (
     <MainLayout userRole="hr" title="HR Dashboard">
       <div className="space-y-6">
@@ -158,6 +161,27 @@ export default function HRDashboard() {
                   <span className="text-sm text-gray-500">{activity.time}</span>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common hiring process actions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                variant="outline" 
+                className="justify-start"
+                onClick={() => router.push('/hr/schedule-interview')}
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Schedule Interview
+              </Button>
+              {/* Add other quick action buttons here if needed */}
             </div>
           </CardContent>
         </Card>
