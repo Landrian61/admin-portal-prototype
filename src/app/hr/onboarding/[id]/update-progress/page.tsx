@@ -171,7 +171,7 @@ export default function UpdateProgressPage({ params }: { params: Promise<{ id: s
           <div className="flex items-center justify-between">
             <Button variant="outline" onClick={() => router.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Details
+              Back to Onboarding
             </Button>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm">
