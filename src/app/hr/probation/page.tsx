@@ -25,6 +25,7 @@ import {
   Download,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const probationEmployees = [
   {
@@ -221,6 +222,18 @@ const getRatingColor = (rating: number) => {
 
 export default function ProbationPage() {
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const filteredEmployees = probationEmployees.filter(employee => {
+    const matchesSearch =
+      employee.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.department.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter ? employee.status === statusFilter : true;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <MainLayout userRole="hr" title="Probation Management">
       <div className="space-y-6">
@@ -229,12 +242,26 @@ export default function ProbationPage() {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Search employees..." className="pl-10 w-64" />
+              <Input
+                placeholder="Search employees..."
+                className="pl-10 w-64"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+            <div className="relative">
+              <select
+                className="border rounded px-2 py-1 text-sm text-gray-700 bg-white"
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+                <option value="At Risk">At Risk</option>
+                <option value="Extended">Extended</option>
+              </select>
+            </div>
             <Button variant="outline">
               <Download className="w-4 h-4 mr-2" />
               Export Report
@@ -248,7 +275,7 @@ export default function ProbationPage() {
 
         {/* Probation Employee Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {probationEmployees.map((employee) => (
+          {filteredEmployees.map((employee) => (
             <Card
               key={employee.id}
               className="hover:shadow-lg transition-shadow"
