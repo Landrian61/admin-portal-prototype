@@ -412,7 +412,12 @@ export default function ProbationPage() {
                     <FileText className="w-4 h-4 mr-1" />
                     View Details
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => router.push(`/hr/probation/${employee.id}/add-review`)}
+                  >
                     <Edit className="w-4 h-4 mr-1" />
                     Add Review
                   </Button>
