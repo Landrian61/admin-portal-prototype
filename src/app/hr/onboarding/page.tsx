@@ -1,65 +1,112 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, User, Calendar, CheckCircle, Clock, AlertTriangle, FileText, Upload, Download, Mail, Phone } from "lucide-react"
+import { format, parseISO } from 'date-fns'
 
-const onboardingTasks = [
+export type Task = {
+  name: string
+  status: "completed" | "in-progress" | "pending"
+  dueDate: string
+}
+
+export type Employee = {
+  id: number
+  employeeName: string
+  position: string
+  email: string
+  phone: string
+  startDate: string
+  status: "completed" | "in-progress" | "not-started" | "overdue"
+  progress: number
+  tasks: Task[]
+}
+
+export const onboardingTasks: Employee[] = [
   {
     id: 1,
     employeeName: "Alice Johnson",
     position: "Software Engineer",
-    startDate: "2024-02-01",
-    status: "In Progress",
-    progress: 65,
-    email: "alice.johnson@aibos.com",
+    email: "alice.johnson@company.com",
     phone: "+1 (555) 123-4567",
+    startDate: "2024-02-01",
+    status: "in-progress",
+    progress: 45,
     tasks: [
-      { name: "Complete Personal Information", status: "completed", dueDate: "2024-01-30" },
-      { name: "Sign Employment Contract", status: "completed", dueDate: "2024-01-30" },
-      { name: "IT Equipment Setup", status: "in-progress", dueDate: "2024-02-01" },
-      { name: "Security Training", status: "pending", dueDate: "2024-02-02" },
-      { name: "Department Orientation", status: "pending", dueDate: "2024-02-03" },
-      { name: "Mentor Assignment", status: "pending", dueDate: "2024-02-03" }
+      {
+        name: "Complete paperwork",
+        status: "completed",
+        dueDate: "2024-01-30"
+      },
+      {
+        name: "IT Setup",
+        status: "in-progress",
+        dueDate: "2024-02-02"
+      },
+      {
+        name: "Team Introduction",
+        status: "pending",
+        dueDate: "2024-02-03"
+      }
     ]
   },
   {
     id: 2,
     employeeName: "Bob Smith",
     position: "Product Manager",
-    startDate: "2024-02-05",
-    status: "Not Started",
-    progress: 0,
-    email: "bob.smith@aibos.com",
+    email: "bob.smith@company.com",
     phone: "+1 (555) 234-5678",
+    startDate: "2024-02-05",
+    status: "not-started",
+    progress: 0,
     tasks: [
-      { name: "Complete Personal Information", status: "pending", dueDate: "2024-02-03" },
-      { name: "Sign Employment Contract", status: "pending", dueDate: "2024-02-03" },
-      { name: "IT Equipment Setup", status: "pending", dueDate: "2024-02-05" },
-      { name: "Security Training", status: "pending", dueDate: "2024-02-06" },
-      { name: "Department Orientation", status: "pending", dueDate: "2024-02-07" },
-      { name: "Mentor Assignment", status: "pending", dueDate: "2024-02-07" }
+      {
+        name: "Complete paperwork",
+        status: "pending",
+        dueDate: "2024-02-03"
+      },
+      {
+        name: "IT Setup",
+        status: "pending",
+        dueDate: "2024-02-05"
+      },
+      {
+        name: "Team Introduction",
+        status: "pending",
+        dueDate: "2024-02-07"
+      }
     ]
   },
   {
     id: 3,
     employeeName: "Carol Davis",
     position: "UX Designer",
-    startDate: "2024-01-15",
-    status: "Completed",
-    progress: 100,
-    email: "carol.davis@aibos.com",
+    email: "carol.davis@company.com",
     phone: "+1 (555) 345-6789",
+    startDate: "2024-01-15",
+    status: "completed",
+    progress: 100,
     tasks: [
-      { name: "Complete Personal Information", status: "completed", dueDate: "2024-01-13" },
-      { name: "Sign Employment Contract", status: "completed", dueDate: "2024-01-13" },
-      { name: "IT Equipment Setup", status: "completed", dueDate: "2024-01-15" },
-      { name: "Security Training", status: "completed", dueDate: "2024-01-16" },
-      { name: "Department Orientation", status: "completed", dueDate: "2024-01-17" },
-      { name: "Mentor Assignment", status: "completed", dueDate: "2024-01-17" }
+      {
+        name: "Complete paperwork",
+        status: "completed",
+        dueDate: "2024-01-13"
+      },
+      {
+        name: "IT Setup",
+        status: "completed",
+        dueDate: "2024-01-15"
+      },
+      {
+        name: "Team Introduction",
+        status: "completed",
+        dueDate: "2024-01-17"
+      }
     ]
   }
 ]
@@ -87,7 +134,17 @@ const getTaskStatusIcon = (status: string) => {
   }
 }
 
+const formatDate = (dateString: string) => {
+  try {
+    return format(parseISO(dateString), 'MM/dd/yyyy')
+  } catch (e) {
+    return dateString
+  }
+}
+
 export default function OnboardingPage() {
+  const router = useRouter()
+
   return (
     <MainLayout userRole="hr" title="Employee Onboarding">
       <div className="space-y-6">
@@ -147,7 +204,7 @@ export default function OnboardingPage() {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Start Date: {new Date(employee.startDate).toLocaleDateString()}
+                    Start Date: {formatDate(employee.startDate)}
                   </div>
                 </div>
 
@@ -178,7 +235,7 @@ export default function OnboardingPage() {
                           </span>
                         </div>
                         <span className="text-xs text-gray-500">
-                          {new Date(task.dueDate).toLocaleDateString()}
+                          {formatDate(task.dueDate)}
                         </span>
                       </div>
                     ))}
@@ -187,10 +244,20 @@ export default function OnboardingPage() {
 
                 {/* Actions */}
                 <div className="flex space-x-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => router.push(`/hr/onboarding/${employee.id}`)}
+                  >
                     View Details
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => router.push(`/hr/onboarding/${employee.id}/update-progress`)}
+                  >
                     Update Progress
                   </Button>
                 </div>

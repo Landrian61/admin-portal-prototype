@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -130,6 +131,8 @@ const getModeIcon = (mode: string) => {
 }
 
 export default function InterviewsPage() {
+  const router = useRouter()
+
   return (
     <MainLayout userRole="hr" title="Interview Management">
       <div className="space-y-6">
@@ -149,7 +152,7 @@ export default function InterviewsPage() {
               Calendar View
             </Button>
           </div>
-          <Button>
+          <Button onClick={() => router.push('/hr/schedule-interview')}>
             <Plus className="w-4 h-4 mr-2" />
             Schedule Interview
           </Button>

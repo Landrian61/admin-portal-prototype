@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, MoreHorizontal, Calendar, User, Mail, Phone } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { format, parseISO } from 'date-fns'
 
 const candidates = [
   {
@@ -92,6 +94,8 @@ const getStageColor = (stage: string) => {
 }
 
 export default function HiringProcess() {
+  const router = useRouter()
+  
   return (
     <MainLayout userRole="hr" title="Hiring Process Management">
       <div className="space-y-6">
@@ -188,15 +192,27 @@ export default function HiringProcess() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button variant="outline" className="justify-start">
+              <Button 
+                variant="outline" 
+                className="justify-start bg-blue-50 hover:bg-blue-100 text-blue-600"
+                onClick={() => router.push('/hr/schedule-interview')}
+              >
                 <Calendar className="w-4 h-4 mr-2" />
                 Schedule Interview
               </Button>
-              <Button variant="outline" className="justify-start">
+              <Button 
+                variant="outline" 
+                className="justify-start bg-purple-50 hover:bg-purple-100 text-purple-600"
+                onClick={() => router.push('/hr/send-email')}
+              >
                 <Mail className="w-4 h-4 mr-2" />
                 Send Email
               </Button>
-              <Button variant="outline" className="justify-start">
+              <Button 
+                variant="outline" 
+                className="justify-start bg-green-50 hover:bg-green-100 text-green-600"
+                onClick={() => router.push('/hr/create-job')}
+              >
                 <User className="w-4 h-4 mr-2" />
                 Create Job Posting
               </Button>

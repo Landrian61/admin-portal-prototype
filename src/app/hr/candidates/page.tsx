@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -135,6 +136,8 @@ const getStageColor = (stage: string) => {
 }
 
 export default function CandidatesPage() {
+  const router = useRouter()
+  
   return (
     <MainLayout userRole="hr" title="Candidate Management">
       <div className="space-y-6">
@@ -249,7 +252,12 @@ export default function CandidatesPage() {
 
                 {/* Actions */}
                 <div className="flex space-x-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => router.push(`/hr/candidates/${candidate.id}`)}
+                  >
                     <Eye className="w-4 h-4 mr-1" />
                     View
                   </Button>
