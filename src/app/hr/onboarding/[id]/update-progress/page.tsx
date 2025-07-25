@@ -44,9 +44,11 @@ import { format, parseISO, isAfter, isBefore, addDays } from "date-fns"
 import { onboardingTasks, type Employee, type Task } from "../../page"
 
 export default function UpdateProgressPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter()
   const { id } = use(params)
+  const router = useRouter()
   const [employee, setEmployee] = useState<Employee | null>(null)
+  const [isPageLoading, setIsPageLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -58,21 +60,49 @@ export default function UpdateProgressPage({ params }: { params: Promise<{ id: s
   const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
-    const foundEmployee = (onboardingTasks as Employee[]).find((e) => e.id === Number.parseInt(id))
-    if (foundEmployee) {
-      setEmployee(foundEmployee)
-      setTasks(foundEmployee.tasks)
+    const loadEmployee = () => {
+      try {
+        setIsPageLoading(true)
+        setError(null)
+        const foundEmployee = onboardingTasks.find((e) => e.id === Number(id))
+
+        if (foundEmployee) {
+          setEmployee(foundEmployee)
+          setTasks(foundEmployee.tasks)
+        } else {
+          setError("Employee not found")
+        }
+      } catch (err) {
+        setError("Error loading employee data")
+      } finally {
+        setIsPageLoading(false)
+      }
     }
+
+    loadEmployee()
   }, [id])
 
-  if (!employee) {
+  if (isPageLoading) {
     return (
-      <MainLayout userRole="hr" title="Employee Not Found">
+      <MainLayout userRole="hr" title="Loading...">
+        <div className="text-center py-12">
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <h2 className="text-2xl font-semibold mb-2">Loading employee data...</h2>
+        </div>
+      </MainLayout>
+    )
+  }
+
+  if (error || !employee) {
+    return (
+      <MainLayout userRole="hr" title="Error">
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-12 h-12 text-red-500" />
           </div>
-          <h2 className="text-2xl font-semibold mb-2">Employee not found</h2>
+          <h2 className="text-2xl font-semibold mb-2">{error || "Employee not found"}</h2>
           <p className="text-gray-600 mb-6">The employee you're looking for doesn't exist or has been removed.</p>
           <Button onClick={() => router.back()} size="lg">
             <ArrowLeft className="w-4 h-4 mr-2" />
