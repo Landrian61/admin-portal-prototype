@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, User, Mail, Phone, MapPin, Calendar, Edit, Trash2, Lock, Unlock, Download, Shield } from "lucide-react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 const users = [
@@ -144,6 +145,21 @@ const getRoleColor = (role: string) => {
 
 export default function UserManagementPage() {
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.department.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter ? user.status === statusFilter : true;
+    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    return matchesSearch && matchesStatus && matchesRole;
+  });
+
   return (
     <MainLayout userRole="hr" title="User Management">
       <div className="space-y-6">
@@ -152,12 +168,50 @@ export default function UserManagementPage() {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Search users..." className="pl-10 w-64" />
+              <Input
+                placeholder="Search users..."
+                className="pl-10 w-64"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <select
+                  className="border rounded px-2 py-1 text-sm text-gray-700 bg-white"
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
+              <div className="relative">
+                <select
+                  className="border rounded px-2 py-1 text-sm text-gray-700 bg-white"
+                  value={roleFilter}
+                  onChange={e => setRoleFilter(e.target.value)}
+                >
+                  <option value="">All Roles</option>
+                  <option value="Director">Director</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Lead">Lead</option>
+                  <option value="Employee">Employee</option>
+                </select>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStatusFilter("");
+                  setRoleFilter("");
+                }}
+              >
+                <Filter className="w-4 h-4 mr-2" />
+                Clear Filters
+              </Button>
+            </div>
             <Button variant="outline">
               <Download className="w-4 h-4 mr-2" />
               Export
@@ -171,7 +225,7 @@ export default function UserManagementPage() {
 
         {/* Users Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <Card key={user.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -220,7 +274,7 @@ export default function UserManagementPage() {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Joined: {new Date(user.joinDate).toLocaleDateString()}
+                    Joined: {new Date(user.joinDate).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                   </div>
                 </div>
 

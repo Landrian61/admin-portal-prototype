@@ -177,10 +177,6 @@ export default function LeaveManagementPage() {
 							Export
 						</Button>
 					</div>
-					<Button>
-						<Plus className="w-4 h-4 mr-2" />
-						New Leave Request
-					</Button>
 				</div>
 
 				{/* Leave Requests */}
