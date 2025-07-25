@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Calendar, Clock, User, Download } from "lucide-react"
-import { leaveRequests } from "../page"
+import { initialLeaveRequests, LeaveRequest } from "../page"
 import { use } from "react"
 
 const getStatusColor = (status: string) => {
@@ -22,7 +22,7 @@ const getStatusColor = (status: string) => {
 export default function LeaveDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { id } = use(params)
-  const leaveRequest = leaveRequests.find(r => r.id === Number(id))
+  const leaveRequest = initialLeaveRequests.find((r: LeaveRequest) => r.id === Number(id))
 
   if (!leaveRequest) {
     return (

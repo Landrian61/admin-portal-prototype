@@ -8,8 +8,25 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, Calendar, Clock, User, CheckCircle, XCircle, AlertTriangle, Download } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 
-export const leaveRequests = [
+export type LeaveRequest = {
+  id: number;
+  employeeName: string;
+  department: string;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: string;
+  appliedDate: string;
+  approver: string;
+  remainingBalance: number;
+  rejectionReason?: string;
+};
+
+export const initialLeaveRequests: LeaveRequest[] = [
 	{
 		id: 1,
 		employeeName: "Alice Johnson",
@@ -121,6 +138,21 @@ const formatDateString = (dateString: string) => {
 
 export default function LeaveManagementPage() {
 	const router = useRouter()
+	const [leaveRequestsState, setLeaveRequestsState] = useState(initialLeaveRequests)
+	const [rejectingId, setRejectingId] = useState<number | null>(null)
+	const [rejectionReason, setRejectionReason] = useState("")
+
+	// Prevent background scroll when rejection dialog is open
+	useEffect(() => {
+		if (rejectingId !== null) {
+			document.body.style.overflow = "hidden"
+		} else {
+			document.body.style.overflow = ""
+		}
+		return () => {
+			document.body.style.overflow = ""
+		}
+	}, [rejectingId])
 	
 	return (
 		<MainLayout userRole="hr" title="Leave Management">
@@ -159,7 +191,7 @@ export default function LeaveManagementPage() {
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-4">
-							{leaveRequests.map((request) => (
+							{leaveRequestsState.map((request) => (
 								<div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50">
 									<div className="flex items-start justify-between">
 										<div className="flex-1">
@@ -211,11 +243,32 @@ export default function LeaveManagementPage() {
 										<div className="flex space-x-2 ml-4">
 											{request.status === "Pending" && (
 												<>
-													<Button size="sm" variant="outline" className="text-green-600 hover:text-green-700">
+													<Button
+														size="sm"
+														variant="outline"
+														className="text-green-600 hover:text-green-700"
+														onClick={() => {
+															setLeaveRequestsState((prev) =>
+																prev.map((r) =>
+																	r.id === request.id
+																		? { ...r, status: "Approved", rejectionReason: undefined }
+																		: r
+																)
+															)
+														}}
+													>
 														<CheckCircle className="w-4 h-4 mr-1" />
 														Approve
 													</Button>
-													<Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+													<Button
+														size="sm"
+														variant="outline"
+														className="text-red-600 hover:text-red-700"
+														onClick={() => {
+															setRejectingId(request.id)
+															setRejectionReason("")
+														}}
+													>
 														<XCircle className="w-4 h-4 mr-1" />
 														Reject
 													</Button>
@@ -328,6 +381,48 @@ export default function LeaveManagementPage() {
 						</CardContent>
 					</Card>
 				</div>
+
+				{/* Rejection Reason Dialog */}
+				{rejectingId !== null && (
+					<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+						<div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+							<h3 className="text-lg font-semibold mb-2">Reject Leave Request</h3>
+							<label className="block text-sm mb-1">Reason for rejection:</label>
+							<textarea
+								className="w-full border rounded p-2 mb-4"
+								rows={3}
+								value={rejectionReason}
+								onChange={e => setRejectionReason(e.target.value)}
+							/>
+							<div className="flex justify-end space-x-2">
+								<Button
+									size="sm"
+									variant="outline"
+									onClick={() => setRejectingId(null)}
+								>
+									Cancel
+								</Button>
+								<Button
+									size="sm"
+									className="text-red-600 hover:text-red-700"
+									onClick={() => {
+										setLeaveRequestsState((prev) =>
+											prev.map((r) =>
+												r.id === rejectingId
+													? { ...r, status: "Rejected", rejectionReason: rejectionReason || "Rejected by admin" }
+													: r
+											)
+										)
+										setRejectingId(null)
+									}}
+									disabled={!rejectionReason.trim()}
+								>
+									Confirm Reject
+								</Button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</MainLayout>
 	)
