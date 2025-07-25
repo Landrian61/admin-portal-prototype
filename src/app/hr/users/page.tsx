@@ -163,7 +163,7 @@ export default function UserManagementPage() {
               Export
             </Button>
           </div>
-          <Button>
+          <Button onClick={() => router.push('/hr/users/add')}>
             <Plus className="w-4 h-4 mr-2" />
             Add User
           </Button>
