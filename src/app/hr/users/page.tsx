@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, User, Mail, Phone, MapPin, Calendar, Edit, Trash2, Lock, Unlock, Download, Shield } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const users = [
   {
@@ -142,6 +143,7 @@ const getRoleColor = (role: string) => {
 }
 
 export default function UserManagementPage() {
+  const router = useRouter();
   return (
     <MainLayout userRole="hr" title="User Management">
       <div className="space-y-6">
@@ -247,7 +249,12 @@ export default function UserManagementPage() {
 
                 {/* Actions */}
                 <div className="flex space-x-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => router.push(`/hr/users/${user.id}/edit`)}
+                  >
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
