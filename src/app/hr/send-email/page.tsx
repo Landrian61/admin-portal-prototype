@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 export default function SendEmailPage() {
+  const router = useRouter()
+  
   return (
     <MainLayout userRole="hr" title="Send Email">
       <div className="max-w-3xl mx-auto space-y-6">
