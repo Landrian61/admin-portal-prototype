@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Calendar, Clock, User, Download } from "lucide-react"
-import { initialLeaveRequests, LeaveRequest } from "../page"
+import { type LeaveRequest, initialLeaveRequests } from "@/data/leave-requests"
 import { use } from "react"
 
 const getStatusColor = (status: string) => {
