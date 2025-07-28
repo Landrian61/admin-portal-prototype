@@ -5,10 +5,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Filter, Clock, User, Calendar, CheckCircle, XCircle, AlertTriangle, Edit, Download, MapPin } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
+import { useState } from "react"
 
-const attendanceData = [
+type AttendanceRecord = {
+  id: number
+  employeeName: string
+  department: string
+  date: string
+  checkIn: string | null
+  checkOut: string | null
+  breakStart: string | null
+  breakEnd: string | null
+  totalHours: string
+  status: string
+  location: string
+  overtime: string
+  lateMinutes?: number
+}
+
+const attendanceData: AttendanceRecord[] = [
   {
     id: 1,
     employeeName: "Alice Johnson",
@@ -120,6 +140,43 @@ const getStatusIcon = (status: string) => {
 }
 
 export default function AttendancePage() {
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(attendanceData)
+  const [editingRecord, setEditingRecord] = useState<AttendanceRecord | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  const handleEditRecord = (record: AttendanceRecord) => {
+    console.log("Edit button clicked for:", record.employeeName)
+    setEditingRecord({ ...record })
+    setIsEditModalOpen(true)
+  }
+
+  const handleSaveEdit = () => {
+    if (editingRecord) {
+      setAttendanceRecords(prev => 
+        prev.map(record => 
+          record.id === editingRecord.id ? editingRecord : record
+        )
+      )
+      setIsEditModalOpen(false)
+      setEditingRecord(null)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditModalOpen(false)
+    setEditingRecord(null)
+  }
+
+  const updateEditingRecord = (field: string, value: string) => {
+    setEditingRecord((prev: AttendanceRecord | null) => {
+      if (!prev) return null
+      return {
+        ...prev,
+        [field]: value
+      }
+    })
+  }
+
   return (
     <MainLayout userRole="ga" title="Attendance Monitoring">
       <div className="space-y-6">
@@ -217,7 +274,7 @@ export default function AttendancePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {attendanceData.map((record) => (
+              {attendanceRecords.map((record) => (
                 <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -274,7 +331,12 @@ export default function AttendancePage() {
                     </div>
                     
                     <div className="flex space-x-2 ml-4">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditRecord(record)}
+                        type="button"
+                      >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
@@ -383,6 +445,107 @@ export default function AttendancePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Modal */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Edit Attendance Record</DialogTitle>
+              <DialogDescription>
+                Update the attendance details for {editingRecord?.employeeName}
+              </DialogDescription>
+            </DialogHeader>
+            {editingRecord && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="checkIn">Check In Time</Label>
+                  <Input
+                    id="checkIn"
+                    type="time"
+                    value={editingRecord.checkIn || ""}
+                    onChange={(e) => updateEditingRecord("checkIn", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="checkOut">Check Out Time</Label>
+                  <Input
+                    id="checkOut"
+                    type="time"
+                    value={editingRecord.checkOut || ""}
+                    onChange={(e) => updateEditingRecord("checkOut", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="breakStart">Break Start</Label>
+                  <Input
+                    id="breakStart"
+                    type="time"
+                    value={editingRecord.breakStart || ""}
+                    onChange={(e) => updateEditingRecord("breakStart", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="breakEnd">Break End</Label>
+                  <Input
+                    id="breakEnd"
+                    type="time"
+                    value={editingRecord.breakEnd || ""}
+                    onChange={(e) => updateEditingRecord("breakEnd", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={editingRecord.status} onValueChange={(value) => updateEditingRecord("status", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Present">Present</SelectItem>
+                      <SelectItem value="Late">Late</SelectItem>
+                      <SelectItem value="Absent">Absent</SelectItem>
+                      <SelectItem value="On Leave">On Leave</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={editingRecord.location}
+                    onChange={(e) => updateEditingRecord("location", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lateMinutes">Late Minutes (if applicable)</Label>
+                  <Input
+                    id="lateMinutes"
+                    type="number"
+                    value={editingRecord.lateMinutes || ""}
+                    onChange={(e) => updateEditingRecord("lateMinutes", e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="overtime">Overtime</Label>
+                  <Input
+                    id="overtime"
+                    value={editingRecord.overtime}
+                    onChange={(e) => updateEditingRecord("overtime", e.target.value)}
+                    placeholder="0h 0m"
+                  />
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveEdit}>
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   )
