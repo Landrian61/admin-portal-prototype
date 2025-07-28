@@ -539,7 +539,7 @@ export default function ScheduleManagementPage() {
                       {day.employees.length} employees
                     </Badge>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {day.employees.map((employee, empIndex) => (
                       <div
@@ -564,55 +564,6 @@ export default function ScheduleManagementPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Schedule Templates */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Schedule Templates</CardTitle>
-            <CardDescription>
-              Pre-defined schedule templates for quick assignment
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <h4 className="font-medium mb-2">Standard 9-5</h4>
-                <p className="text-sm text-gray-600 mb-2">09:00 - 17:00</p>
-                <p className="text-xs text-gray-500">Regular office hours</p>
-                <Button size="sm" variant="outline" className="w-full mt-3">
-                  Use Template
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <h4 className="font-medium mb-2">Flexible Hours</h4>
-                <p className="text-sm text-gray-600 mb-2">10:00 - 18:00</p>
-                <p className="text-xs text-gray-500">Flexible start time</p>
-                <Button size="sm" variant="outline" className="w-full mt-3">
-                  Use Template
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <h4 className="font-medium mb-2">Early Shift</h4>
-                <p className="text-sm text-gray-600 mb-2">08:30 - 16:30</p>
-                <p className="text-xs text-gray-500">Early morning start</p>
-                <Button size="sm" variant="outline" className="w-full mt-3">
-                  Use Template
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <h4 className="font-medium mb-2">Late Shift</h4>
-                <p className="text-sm text-gray-600 mb-2">14:00 - 22:00</p>
-                <p className="text-xs text-gray-500">Evening hours</p>
-                <Button size="sm" variant="outline" className="w-full mt-3">
-                  Use Template
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>
