@@ -401,7 +401,7 @@ export default function ScheduleManagementPage() {
 
         {/* Edit Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Schedule Record</DialogTitle>
               <DialogDescription>
@@ -409,7 +409,7 @@ export default function ScheduleManagementPage() {
               </DialogDescription>
             </DialogHeader>
             {editingRecord && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="employeeName">Employee Name</Label>
                   <Input
@@ -499,7 +499,7 @@ export default function ScheduleManagementPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="col-span-2 space-y-2">
+                <div className="col-span-1 md:col-span-2 space-y-2">
                   <Label htmlFor="notes">Notes</Label>
                   <Input
                     id="notes"
@@ -509,7 +509,7 @@ export default function ScheduleManagementPage() {
                   />
                 </div>
                 {editingRecord.conflict && (
-                  <div className="col-span-2 space-y-2">
+                  <div className="col-span-1 md:col-span-2 space-y-2">
                     <Label htmlFor="conflict">Conflict Details</Label>
                     <Input
                       id="conflict"
