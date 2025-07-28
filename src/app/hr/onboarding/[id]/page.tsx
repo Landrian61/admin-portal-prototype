@@ -10,7 +10,7 @@ import { ArrowLeft, Mail, Phone, Calendar, User, CheckCircle, Clock, AlertTriang
 import { format, parseISO } from 'date-fns'
 
 // Import the onboarding tasks data
-import { onboardingTasks } from "../page"
+import { onboardingTasks } from "@/data/onboarding"
 
 interface Task {
   name: string

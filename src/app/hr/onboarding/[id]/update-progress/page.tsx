@@ -41,7 +41,7 @@ import {
   Zap,
 } from "lucide-react"
 import { format, parseISO, isAfter, isBefore, addDays } from "date-fns"
-import { onboardingTasks, type Employee, type Task } from "../../page"
+import { onboardingTasks, type Employee, type Task } from "@/data/onboarding"
 
 export default function UpdateProgressPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -103,7 +103,7 @@ export default function UpdateProgressPage({ params }: { params: Promise<{ id: s
             <AlertTriangle className="w-12 h-12 text-red-500" />
           </div>
           <h2 className="text-2xl font-semibold mb-2">{error || "Employee not found"}</h2>
-          <p className="text-gray-600 mb-6">The employee you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 mb-6">The employee you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <Button onClick={() => router.back()} size="lg">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
@@ -137,7 +137,7 @@ export default function UpdateProgressPage({ params }: { params: Promise<{ id: s
   const handleTaskToggle = (taskIndex: number, checked: boolean) => {
     const updatedTasks = tasks.map((task, index) =>
       index === taskIndex
-        ? { ...task, status: checked ? "completed" as "completed" : "pending" as "pending" }
+        ? { ...task, status: checked ? "completed" as const : "pending" as const }
         : task,
     )
     setTasks(updatedTasks)

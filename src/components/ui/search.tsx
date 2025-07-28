@@ -179,7 +179,7 @@ export function GlobalSearch({ placeholder = "Search across all portals...", cla
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-50">
           <div className="p-4 text-center text-gray-500">
             <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-            <p className="text-sm">No results found for "{query}"</p>
+            <p className="text-sm">No results found for &quot;{query}&quot;</p>
             <p className="text-xs text-gray-400 mt-1">
               Try searching for users, documents, schedules, or tasks
             </p>
