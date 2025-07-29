@@ -521,36 +521,6 @@ export default function AdminUserManagementPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Bulk Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Bulk User Actions</CardTitle>
-            <CardDescription>
-              Perform actions on multiple users simultaneously
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="justify-start">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Bulk Import Users
-              </Button>
-              <Button variant="outline" className="justify-start">
-                <Key className="w-4 h-4 mr-2" />
-                Reset Passwords
-              </Button>
-              <Button variant="outline" className="justify-start">
-                <Shield className="w-4 h-4 mr-2" />
-                Update Permissions
-              </Button>
-              <Button variant="outline" className="justify-start">
-                <Settings className="w-4 h-4 mr-2" />
-                Export User Data
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </MainLayout>
   );
