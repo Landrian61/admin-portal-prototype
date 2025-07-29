@@ -199,6 +199,8 @@ export default function ScheduleManagementPage() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [calendarView, setCalendarView] = useState(false);
+  const [viewRecord, setViewRecord] = useState<ScheduleRecord | null>(null)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 
   // Filtered and searched records
   const filteredRecords = scheduleRecords.filter((record) => {
@@ -270,6 +272,11 @@ export default function ScheduleManagementPage() {
       };
     });
   };
+
+  const handleViewRecord = (record: ScheduleRecord) => {
+    setViewRecord(record)
+    setIsViewModalOpen(true)
+  }
 
   return (
     <MainLayout userRole="ga" title="Schedule Management">
@@ -426,9 +433,8 @@ export default function ScheduleManagementPage() {
                           <Edit className="w-4 h-4 mr-1" />
                           Edit
                         </Button>
-                        <Button size="sm" variant="outline">
-                          <Copy className="w-4 h-4 mr-1" />
-                          Copy
+                        <Button size="sm" variant="outline" onClick={() => handleViewRecord(schedule)}>
+                          View Details
                         </Button>
                         {schedule.status === "Conflict" && (
                           <Button
@@ -888,6 +894,73 @@ export default function ScheduleManagementPage() {
                 Cancel
               </Button>
               <Button onClick={handleSaveCreate}>Create Schedule</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Details Modal */}
+        <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Schedule Details</DialogTitle>
+              <DialogDescription>
+                Detailed information for {viewRecord?.employeeName}
+              </DialogDescription>
+            </DialogHeader>
+            {viewRecord && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Employee Name</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.employeeName}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Department</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.department}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.date}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Start Time</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.startTime}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>End Time</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.endTime}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Break Time</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.breakTime}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.location}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.status}</div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Schedule Type</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.type}</div>
+                </div>
+                <div className="col-span-1 md:col-span-2 space-y-2">
+                  <Label>Notes</Label>
+                  <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.notes}</div>
+                </div>
+                {viewRecord.conflict && (
+                  <div className="col-span-1 md:col-span-2 space-y-2">
+                    <Label>Conflict Details</Label>
+                    <div className="border rounded px-3 py-2 bg-gray-50">{viewRecord.conflict}</div>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
+                Close
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
