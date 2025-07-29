@@ -35,6 +35,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import RoleManagement from "@/components/admin/access/RoleManagement";
+import PermissionManagement from "@/components/admin/access/PermissionManagement";
+import AuditLogDialog from "@/components/admin/access/AuditLogDialog";
+import HeaderActions from "@/components/admin/access/HeaderActions";
+import QuickStats from "@/components/admin/access/QuickStats";
+import SecurityActions from "@/components/admin/access/SecurityActions";
 
 const roles = [
   {
@@ -253,26 +259,30 @@ export default function AccessControlPage() {
   const [rolesState, setRolesState] = useState(roles);
   const [permissionsState] = useState(permissions);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleLevelFilter, setRoleLevelFilter] = useState('');
-  const [permissionCategoryFilter, setPermissionCategoryFilter] = useState('');
+  const [roleLevelFilter, setRoleLevelFilter] = useState("");
+  const [permissionCategoryFilter, setPermissionCategoryFilter] = useState("");
 
   // Filtered roles and permissions based on search and filter
-  const filteredRoles = rolesState.filter(role => {
+  const filteredRoles = rolesState.filter((role) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
       role.name.toLowerCase().includes(term) ||
       role.description.toLowerCase().includes(term) ||
       role.permissions.some((p: string) => p.toLowerCase().includes(term));
-    const matchesLevel = roleLevelFilter ? role.level === roleLevelFilter : true;
+    const matchesLevel = roleLevelFilter
+      ? role.level === roleLevelFilter
+      : true;
     return matchesSearch && matchesLevel;
   });
-  const filteredPermissions = permissionsState.filter(permission => {
+  const filteredPermissions = permissionsState.filter((permission) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
       permission.name.toLowerCase().includes(term) ||
       permission.description.toLowerCase().includes(term) ||
       permission.category.toLowerCase().includes(term);
-    const matchesCategory = permissionCategoryFilter ? permission.category === permissionCategoryFilter : true;
+    const matchesCategory = permissionCategoryFilter
+      ? permission.category === permissionCategoryFilter
+      : true;
     return matchesSearch && matchesCategory;
   });
   // Dialog state
@@ -473,220 +483,314 @@ export default function AccessControlPage() {
     <MainLayout userRole="admin" title="Access Control">
       <div className="space-y-6">
         {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search roles or permissions..."
-                className="pl-10 w-64"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
-            </div>
-            {/* Role Level Filter Dropdown */}
-            <select
-              className="border rounded px-2 py-1"
-              value={roleLevelFilter}
-              onChange={e => setRoleLevelFilter(e.target.value)}
-            >
-              <option value="">All Levels</option>
-              <option value="System">System</option>
-              <option value="Department">Department</option>
-              <option value="User">User</option>
-            </select>
-            {/* Permission Category Filter Dropdown */}
-            <select
-              className="border rounded px-2 py-1"
-              value={permissionCategoryFilter}
-              onChange={e => setPermissionCategoryFilter(e.target.value)}
-            >
-              <option value="">All Categories</option>
-              <option value="Administration">Administration</option>
-              <option value="System">System</option>
-              <option value="HR">HR</option>
-              <option value="GA">GA</option>
-              <option value="Finance">Finance</option>
-            </select>
-            {/* Clear Filters Button */}
-            <Button variant="outline" onClick={() => { setRoleLevelFilter(''); setPermissionCategoryFilter(''); }}>Clear Filters</Button>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" onClick={() => setAuditLogDialogOpen(true)}>
-              <Eye className="w-4 h-4 mr-2" />
-              Audit Log
-            </Button>
-          </div>
-          <Button onClick={handleOpenCreateDialog}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Role
-          </Button>
-        </div>
+        <HeaderActions
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          roleLevelFilter={roleLevelFilter}
+          onRoleLevelFilterChange={setRoleLevelFilter}
+          permissionCategoryFilter={permissionCategoryFilter}
+          onPermissionCategoryFilterChange={setPermissionCategoryFilter}
+          onClearFilters={() => {
+            setRoleLevelFilter("");
+            setPermissionCategoryFilter("");
+          }}
+          onAuditLogClick={() => setAuditLogDialogOpen(true)}
+          onCreateRoleClick={handleOpenCreateDialog}
+        />
 
         {/* Roles Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Role Management</CardTitle>
-            <CardDescription>
-              Manage user roles and their associated permissions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {filteredRoles.map((role) => (
-                <div
-                  key={role.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <Shield className="w-5 h-5 text-gray-600" />
-                        <h4 className="font-medium text-lg">{role.name}</h4>
-                        <Badge className={role.color} variant="secondary">
-                          {role.level}
-                        </Badge>
-                        <Badge variant="outline">{role.userCount} users</Badge>
-                      </div>
-
-                      <p className="text-sm text-gray-600 mb-3">
-                        {role.description}
-                      </p>
-
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-2">
-                          Permissions:
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {role.permissions
-                            .slice(0, 4)
-                            .map((permission, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {permission}
-                              </Badge>
-                            ))}
-                          {role.permissions.length > 4 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{role.permissions.length - 4} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
+        <RoleManagement
+          roles={filteredRoles}
+          onEdit={handleEditRole}
+          onAssign={handleAssignRole}
+          onDelete={handleDeleteRole}
+          editDialog={
+            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+              <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Role</DialogTitle>
+                </DialogHeader>
+                {editRoleData && (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      saveEditRole();
+                    }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Role Name
+                      </label>
+                      <Input
+                        value={editRoleData.name}
+                        onChange={(e) =>
+                          handleEditRoleChange("name", e.target.value)
+                        }
+                        required
+                      />
                     </div>
-
-                    <div className="flex space-x-2 ml-4">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditRole(role)}
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleAssignRole(role)}
-                      >
-                        <Users className="w-4 h-4 mr-1" />
-                        Assign
-                      </Button>
-                      {role.name !== "Super Admin" && (
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Description
+                      </label>
+                      <Input
+                        value={editRoleData.description}
+                        onChange={(e) =>
+                          handleEditRoleChange("description", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Permissions
+                      </label>
+                      <div className="space-y-2">
+                        {editRoleData.permissions.map(
+                          (perm: string, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <Input
+                                value={perm}
+                                onChange={(e) =>
+                                  handleEditRolePermissionChange(
+                                    idx,
+                                    e.target.value
+                                  )
+                                }
+                                required
+                              />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRemovePermissionField(idx)}
+                                disabled={editRoleData.permissions.length === 1}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          )
+                        )}
                         <Button
+                          type="button"
                           size="sm"
                           variant="outline"
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => handleDeleteRole(role)}
+                          onClick={handleAddPermissionField}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          Add Permission
                         </Button>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={cancelEditRole}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">Save</Button>
+                    </DialogFooter>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
+          }
+          assignDialog={
+            <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+              <DialogContent className="max-w-lg w-full max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Assign Users to Role</DialogTitle>
+                </DialogHeader>
+                {roleToAssign && (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      saveAssignUsers();
+                    }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Select users to assign to{" "}
+                        <span className="font-semibold">
+                          {roleToAssign.name}
+                        </span>
+                        :
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {allUsers.map((user) => (
+                          <label key={user} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={
+                                assignedUsers[roleToAssign.id]?.includes(
+                                  user
+                                ) || false
+                              }
+                              onChange={(e) =>
+                                handleAssignUserChange(user, e.target.checked)
+                              }
+                            />
+                            <span>{user}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={cancelAssignUsers}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">Save</Button>
+                    </DialogFooter>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
+          }
+          deleteDialog={
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete Role</DialogTitle>
+                </DialogHeader>
+                <div>
+                  Are you sure you want to delete the role{" "}
+                  <span className="font-semibold">{roleToDelete?.name}</span>?
+                  This action cannot be undone.
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={cancelDeleteRole}>
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-red-600 text-white"
+                    onClick={confirmDeleteRole}
+                  >
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          }
+          createDialog={
+            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+              <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create New Role</DialogTitle>
+                </DialogHeader>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    saveNewRole();
+                  }}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Role Name
+                    </label>
+                    <Input
+                      value={newRoleData.name}
+                      onChange={(e) =>
+                        handleNewRoleChange("name", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Description
+                    </label>
+                    <Input
+                      value={newRoleData.description}
+                      onChange={(e) =>
+                        handleNewRoleChange("description", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Level
+                    </label>
+                    <select
+                      className="w-full border rounded px-2 py-1"
+                      value={newRoleData.level}
+                      onChange={(e) =>
+                        handleNewRoleChange("level", e.target.value)
+                      }
+                    >
+                      <option value="System">System</option>
+                      <option value="Department">Department</option>
+                      <option value="User">User</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Permissions
+                    </label>
+                    <div className="space-y-2">
+                      {newRoleData.permissions.map(
+                        (perm: string, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <Input
+                              value={perm}
+                              onChange={(e) =>
+                                handleNewRolePermissionChange(
+                                  idx,
+                                  e.target.value
+                                )
+                              }
+                              required
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                handleRemoveNewPermissionField(idx)
+                              }
+                              disabled={newRoleData.permissions.length === 1}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )
                       )}
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={handleAddNewPermissionField}
+                      >
+                        Add Permission
+                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={cancelCreateRole}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit">Save</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          }
+        />
 
         {/* Permissions Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Permission Management</CardTitle>
-            <CardDescription>
-              Manage individual permissions and their assignments
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {filteredPermissions.map((permission) => (
-                <div
-                  key={permission.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <Key className="w-5 h-5 text-gray-600" />
-                        <h4 className="font-medium">{permission.name}</h4>
-                        <Badge
-                          className={getCategoryColor(permission.category)}
-                          variant="secondary"
-                        >
-                          {permission.category}
-                        </Badge>
-                        <Badge
-                          className={getRiskLevelColor(permission.riskLevel)}
-                          variant="secondary"
-                        >
-                          {permission.riskLevel} Risk
-                        </Badge>
-                      </div>
-
-                      <p className="text-sm text-gray-600 mb-3">
-                        {permission.description}
-                      </p>
-
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-2">
-                          Assigned to roles:
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {permission.assignedRoles.map((role, index) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {role}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex space-x-2 ml-4">
-                      <Button size="sm" variant="outline">
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Shield className="w-4 h-4 mr-1" />
-                        Assign
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PermissionManagement permissions={filteredPermissions} />
 
         {/* Access Logs */}
         <Card>
@@ -742,372 +846,21 @@ export default function AccessControlPage() {
         </Card>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">5</div>
-                <div className="text-sm text-gray-600">Active Roles</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">97</div>
-                <div className="text-sm text-gray-600">Total Users</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">23</div>
-                <div className="text-sm text-gray-600">Permissions</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">3</div>
-                <div className="text-sm text-gray-600">Security Alerts</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <QuickStats
+          activeRoles={rolesState.length}
+          totalUsers={rolesState.reduce((sum, role) => sum + role.userCount, 0)}
+          permissions={permissionsState.length}
+          securityAlerts={3} // Mock data for now
+        />
 
         {/* Security Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Security Actions</CardTitle>
-            <CardDescription>
-              Quick access to common security management tasks
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="justify-start">
-                <Lock className="w-4 h-4 mr-2" />
-                Lock All Sessions
-              </Button>
-              <Button variant="outline" className="justify-start">
-                <Key className="w-4 h-4 mr-2" />
-                Force Password Reset
-              </Button>
-              <Button variant="outline" className="justify-start">
-                <Shield className="w-4 h-4 mr-2" />
-                Enable 2FA
-              </Button>
-              <Button variant="outline" className="justify-start">
-                <Settings className="w-4 h-4 mr-2" />
-                Security Settings
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Delete Role</DialogTitle>
-            </DialogHeader>
-            <div>
-              Are you sure you want to delete the role{" "}
-              <span className="font-semibold">{roleToDelete?.name}</span>? This
-              action cannot be undone.
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={cancelDeleteRole}>
-                Cancel
-              </Button>
-              <Button
-                className="bg-red-600 text-white"
-                onClick={confirmDeleteRole}
-              >
-                Delete
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        {/* Edit Role Dialog */}
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Role</DialogTitle>
-            </DialogHeader>
-            {editRoleData && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  saveEditRole();
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Role Name
-                  </label>
-                  <Input
-                    value={editRoleData.name}
-                    onChange={(e) =>
-                      handleEditRoleChange("name", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Description
-                  </label>
-                  <Input
-                    value={editRoleData.description}
-                    onChange={(e) =>
-                      handleEditRoleChange("description", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Permissions
-                  </label>
-                  <div className="space-y-2">
-                    {editRoleData.permissions.map(
-                      (perm: string, idx: number) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <Input
-                            value={perm}
-                            onChange={(e) =>
-                              handleEditRolePermissionChange(
-                                idx,
-                                e.target.value
-                              )
-                            }
-                            required
-                          />
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleRemovePermissionField(idx)}
-                            disabled={editRoleData.permissions.length === 1}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      )
-                    )}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={handleAddPermissionField}
-                    >
-                      Add Permission
-                    </Button>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={cancelEditRole}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">Save</Button>
-                </DialogFooter>
-              </form>
-            )}
-          </DialogContent>
-        </Dialog>
-        {/* Assign Users Dialog */}
-        <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-          <DialogContent className="max-w-lg w-full max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Assign Users to Role</DialogTitle>
-            </DialogHeader>
-            {roleToAssign && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  saveAssignUsers();
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Select users to assign to{" "}
-                    <span className="font-semibold">{roleToAssign.name}</span>:
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {allUsers.map((user) => (
-                      <label key={user} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={
-                            assignedUsers[roleToAssign.id]?.includes(user) ||
-                            false
-                          }
-                          onChange={(e) =>
-                            handleAssignUserChange(user, e.target.checked)
-                          }
-                        />
-                        <span>{user}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={cancelAssignUsers}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">Save</Button>
-                </DialogFooter>
-              </form>
-            )}
-          </DialogContent>
-        </Dialog>
-        {/* Create Role Dialog */}
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create New Role</DialogTitle>
-            </DialogHeader>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                saveNewRole();
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Role Name
-                </label>
-                <Input
-                  value={newRoleData.name}
-                  onChange={(e) => handleNewRoleChange("name", e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description
-                </label>
-                <Input
-                  value={newRoleData.description}
-                  onChange={(e) =>
-                    handleNewRoleChange("description", e.target.value)
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Level</label>
-                <select
-                  className="w-full border rounded px-2 py-1"
-                  value={newRoleData.level}
-                  onChange={(e) => handleNewRoleChange("level", e.target.value)}
-                >
-                  <option value="System">System</option>
-                  <option value="Department">Department</option>
-                  <option value="User">User</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Permissions
-                </label>
-                <div className="space-y-2">
-                  {newRoleData.permissions.map((perm: string, idx: number) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <Input
-                        value={perm}
-                        onChange={(e) =>
-                          handleNewRolePermissionChange(idx, e.target.value)
-                        }
-                        required
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRemoveNewPermissionField(idx)}
-                        disabled={newRoleData.permissions.length === 1}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={handleAddNewPermissionField}
-                  >
-                    Add Permission
-                  </Button>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={cancelCreateRole}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">Save</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <SecurityActions />
         {/* Audit Log Dialog */}
-        <Dialog open={auditLogDialogOpen} onOpenChange={setAuditLogDialogOpen}>
-          <DialogContent className="max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Audit Log</DialogTitle>
-            </DialogHeader>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-3 py-2 border">User</th>
-                    <th className="px-3 py-2 border">Action</th>
-                    <th className="px-3 py-2 border">Resource</th>
-                    <th className="px-3 py-2 border">Timestamp</th>
-                    <th className="px-3 py-2 border">IP Address</th>
-                    <th className="px-3 py-2 border">Status</th>
-                    <th className="px-3 py-2 border">Risk Level</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {accessLogs.map(log => (
-                    <tr key={log.id}>
-                      <td className="px-3 py-2 border">{log.user}</td>
-                      <td className="px-3 py-2 border">{log.action}</td>
-                      <td className="px-3 py-2 border">{log.resource}</td>
-                      <td className="px-3 py-2 border whitespace-nowrap">{log.timestamp}</td>
-                      <td className="px-3 py-2 border">{log.ipAddress}</td>
-                      <td className="px-3 py-2 border">
-                        <span className={`px-2 py-1 rounded ${getStatusColor(log.status)}`}>{log.status}</span>
-                      </td>
-                      <td className="px-3 py-2 border">
-                        <span className={`px-2 py-1 rounded ${getRiskLevelColor(log.riskLevel)}`}>{log.riskLevel}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AuditLogDialog
+          open={auditLogDialogOpen}
+          onOpenChange={setAuditLogDialogOpen}
+          accessLogs={accessLogs}
+        />
       </div>
     </MainLayout>
   );
