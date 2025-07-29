@@ -157,10 +157,7 @@ export default function CandidatesPage() {
               Export
             </Button>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Candidate
-          </Button>
+            
         </div>
 
         {/* Candidates Grid */}
