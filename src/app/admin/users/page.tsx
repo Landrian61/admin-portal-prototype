@@ -31,6 +31,11 @@ import {
   Settings,
 } from "lucide-react";
 import React, { useState } from "react";
+import { UserGrid } from "@/components/admin/users/UserGrid";
+import { UserEditDialog } from "@/components/admin/users/UserEditDialog";
+import { UserPermissionsDialog } from "@/components/admin/users/UserPermissionsDialog";
+import { UserFilterModal } from "@/components/admin/users/UserFilterModal";
+import { HeaderActions } from "@/components/admin/users/HeaderActions";
 
 const users = [
   {
@@ -382,189 +387,51 @@ export default function AdminUserManagementPage() {
     <MainLayout userRole="admin" title="User Management">
       <div className="space-y-6">
         {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                placeholder="Search users..." 
-                className="pl-10 w-64" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Button variant="outline" onClick={() => setShowFilterModal(true)}>
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" onClick={exportToCSV}>
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            {(searchTerm || Object.values(filters).some(f => f !== "")) && (
-              <Button variant="outline" onClick={clearFilters} size="sm">
-                Clear Filters
-              </Button>
-            )}
-          </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add User
-          </Button>
-        </div>
-
+        <HeaderActions
+          searchTerm={searchTerm}
+          onSearch={setSearchTerm}
+          onShowFilter={() => setShowFilterModal(true)}
+          onExport={exportToCSV}
+          onAddUser={() => {}}
+          onClear={clearFilters}
+          filtersActive={Boolean(searchTerm || Object.values(filters).some(f => f !== ""))}
+        />
         {/* Users Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredUsers.map((user) => (
-            <Card key={user.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{user.name}</CardTitle>
-                      <CardDescription>{user.position}</CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-1">
-                    <Badge
-                      className={getStatusColor(user.status)}
-                      variant="secondary"
-                    >
-                      {user.status}
-                    </Badge>
-                    <Badge
-                      className={getRoleColor(user.role)}
-                      variant="secondary"
-                    >
-                      {user.role}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Contact Info */}
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Mail className="w-4 h-4 mr-2" />
-                    {user.email}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Phone className="w-4 h-4 mr-2" />
-                    {user.phone}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    {user.location}
-                  </div>
-                </div>
-
-                {/* Security Info */}
-                <div className="space-y-2">
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-700">
-                      Department:
-                    </span>
-                    <span className="ml-2 text-gray-600">
-                      {user.department}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Joined: {new Date(user.joinDate).toLocaleDateString()}
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-700">
-                      Last Login:
-                    </span>
-                    <span className="ml-2 text-gray-600">{user.lastLogin}</span>
-                  </div>
-                </div>
-
-                {/* Security Status */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700">2FA Enabled:</span>
-                    <Badge
-                      variant={user.twoFactorEnabled ? "default" : "outline"}
-                    >
-                      {user.twoFactorEnabled ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700">Account Locked:</span>
-                    <Badge
-                      variant={user.accountLocked ? "destructive" : "outline"}
-                    >
-                      {user.accountLocked ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                  {user.loginAttempts > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-700">Failed Attempts:</span>
-                      <Badge variant="destructive">{user.loginAttempts}</Badge>
-                    </div>
-                  )}
-                </div>
-
-                {/* Permissions */}
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Permissions:
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {user.permissions.slice(0, 2).map((permission, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {permission}
-                      </Badge>
-                    ))}
-                    {user.permissions.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{user.permissions.length - 2} more
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex space-x-2 pt-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleEdit(user)}
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handlePermissions(user)}
-                  >
-                    <Shield className="w-4 h-4 mr-1" />
-                    Permissions
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleToggleLock(user.id)}
-                  >
-                    {user.accountLocked ? (
-                      <Unlock className="w-4 h-4" />
-                    ) : (
-                      <Lock className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <UserGrid
+          users={filteredUsers}
+          getStatusColor={getStatusColor}
+          getRoleColor={getRoleColor}
+          onEdit={handleEdit}
+          onPermissions={handlePermissions}
+          onToggleLock={handleToggleLock}
+        />
+        {/* Edit User Dialog */}
+        <UserEditDialog
+          open={!!editUser}
+          form={editUserForm}
+          onChange={handleEditUserChange}
+          onSubmit={handleEditUserSubmit}
+          onCancel={closeModals}
+        />
+        {/* Permissions Dialog */}
+        <UserPermissionsDialog
+          open={!!permissionsUser}
+          allPermissions={allPermissions}
+          selected={permissionsForm}
+          onToggle={handlePermissionToggle}
+          onSubmit={handlePermissionsSubmit}
+          onCancel={closeModals}
+        />
+        {/* Filter Modal */}
+        <UserFilterModal
+          open={showFilterModal}
+          filters={filters}
+          roles={roles}
+          departments={departments}
+          onChange={handleFilterChange}
+          onClear={clearFilters}
+          onClose={() => setShowFilterModal(false)}
+        />
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -685,235 +552,6 @@ export default function AdminUserManagementPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Simple Modals for Edit and Permissions */}
-      {editUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <form
-            onSubmit={handleEditUserSubmit}
-            className="bg-white p-6 rounded shadow-lg min-w-[500px] max-w-[700px] w-full max-h-[90vh] overflow-y-auto"
-          >
-            <h2 className="text-lg font-bold mb-4">Edit User</h2>
-            <div className="grid grid-cols-1 gap-3">
-              <input type="hidden" name="id" value={editUserForm.id} />
-              <label className="flex flex-col text-sm">
-                Name
-                <input
-                  name="name"
-                  value={editUserForm.name}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                  required
-                />
-              </label>
-              <label className="flex flex-col text-sm">
-                Email
-                <input
-                  name="email"
-                  value={editUserForm.email}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                  required
-                />
-              </label>
-              <label className="flex flex-col text-sm">
-                Phone
-                <input
-                  name="phone"
-                  value={editUserForm.phone}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                />
-              </label>
-              <label className="flex flex-col text-sm">
-                Position
-                <input
-                  name="position"
-                  value={editUserForm.position}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                />
-              </label>
-              <label className="flex flex-col text-sm">
-                Department
-                <input
-                  name="department"
-                  value={editUserForm.department}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                />
-              </label>
-              <label className="flex flex-col text-sm">
-                Role
-                <select
-                  name="role"
-                  value={editUserForm.role}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                >
-                  <option value="Director">Director</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Lead">Lead</option>
-                  <option value="Employee">Employee</option>
-                </select>
-              </label>
-              <label className="flex flex-col text-sm">
-                Status
-                <select
-                  name="status"
-                  value={editUserForm.status}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Suspended">Suspended</option>
-                </select>
-              </label>
-              <label className="flex flex-col text-sm">
-                Location
-                <input
-                  name="location"
-                  value={editUserForm.location}
-                  onChange={handleEditUserChange}
-                  className="border rounded px-2 py-1 mt-1"
-                />
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="twoFactorEnabled"
-                  checked={editUserForm.twoFactorEnabled}
-                  onChange={handleEditUserChange}
-                />
-                2FA Enabled
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="accountLocked"
-                  checked={editUserForm.accountLocked}
-                  onChange={handleEditUserChange}
-                />
-                Account Locked
-              </label>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <Button type="submit">Save</Button>
-              <Button type="button" variant="outline" onClick={closeModals}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </div>
-      )}
-      {permissionsUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <form
-            onSubmit={handlePermissionsSubmit}
-            className="bg-white p-6 rounded shadow-lg min-w-[350px] max-w-[90vw]"
-          >
-            <h2 className="text-lg font-bold mb-4">Edit Permissions</h2>
-            <div className="grid grid-cols-1 gap-2 mb-4">
-              {allPermissions.map((perm) => (
-                <label key={perm} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={permissionsForm.includes(perm)}
-                    onChange={() => handlePermissionToggle(perm)}
-                  />
-                  {perm}
-                </label>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Button type="submit">Save</Button>
-              <Button type="button" variant="outline" onClick={closeModals}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Filter Modal */}
-      {showFilterModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg min-w-[400px] max-w-[500px]">
-            <h2 className="text-lg font-bold mb-4">Filter Users</h2>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
-                <select 
-                  value={filters.status} 
-                  onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Suspended">Suspended</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Role</label>
-                <select 
-                  value={filters.role} 
-                  onChange={(e) => handleFilterChange("role", e.target.value)}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">All Roles</option>
-                  {roles.map(role => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Department</label>
-                <select 
-                  value={filters.department} 
-                  onChange={(e) => handleFilterChange("department", e.target.value)}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">All Departments</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">2FA Status</label>
-                <select 
-                  value={filters.twoFactorEnabled} 
-                  onChange={(e) => handleFilterChange("twoFactorEnabled", e.target.value)}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">All</option>
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Account Locked</label>
-                <select 
-                  value={filters.accountLocked} 
-                  onChange={(e) => handleFilterChange("accountLocked", e.target.value)}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">All</option>
-                  <option value="true">Locked</option>
-                  <option value="false">Unlocked</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-6">
-              <Button onClick={() => setShowFilterModal(false)}>Apply Filters</Button>
-              <Button variant="outline" onClick={clearFilters}>Clear All</Button>
-              <Button variant="outline" onClick={() => setShowFilterModal(false)}>Cancel</Button>
-            </div>
-          </div>
-        </div>
-      )}
     </MainLayout>
   );
 }
