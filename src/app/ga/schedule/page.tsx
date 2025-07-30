@@ -30,14 +30,11 @@ import {
 import {
   Plus,
   Search,
-  Filter,
   Calendar,
   Clock,
   User,
   MapPin,
   Edit,
-  Trash2,
-  Copy,
   AlertTriangle,
   CheckCircle,
 } from "lucide-react";

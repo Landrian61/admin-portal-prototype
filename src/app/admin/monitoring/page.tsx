@@ -4,9 +4,8 @@ import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { RefreshCw, AlertTriangle, CheckCircle, Activity, Server, Database, Wifi, HardDrive, Cpu, MemoryStick, Clock, TrendingUp, TrendingDown } from "lucide-react"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from "recharts"
+import { Server, Activity, AlertTriangle, Database, Cpu, HardDrive, Wifi, TrendingUp, TrendingDown, RefreshCw, BarChart, Clock, MemoryStick } from "lucide-react"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, AreaChart, Area } from "recharts"
 
 const systemMetrics = [
   {
@@ -236,13 +235,13 @@ export default function SystemMonitoringPage() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={responseTimeData}>
+                <RechartsBarChart data={responseTimeData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="endpoint" angle={-45} textAnchor="end" height={80} />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="avgTime" fill="#0b3a50" name="Avg Time (ms)" />
-                </BarChart>
+                </RechartsBarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>

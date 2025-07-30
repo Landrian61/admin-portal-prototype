@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Filter, User, Calendar, CheckCircle, Clock, AlertTriangle, FileText, Download, Mail, Phone } from "lucide-react"
+import { Plus, Search, User, Calendar, CheckCircle, Clock, AlertTriangle, FileText, Download, Mail, Phone } from "lucide-react"
 import { format, parseISO } from 'date-fns'
 import { onboardingTasks } from "@/data/onboarding"
+import { useState } from "react"
 
 const getStatusColor = (status: string) => {
   const colors: { [key: string]: string } = {
@@ -43,6 +44,48 @@ const formatDate = (dateString: string) => {
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Filtered onboarding tasks
+  const filteredTasks = onboardingTasks.filter(emp => {
+    const matchesSearch =
+      emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter ? emp.status === statusFilter : true;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Export to CSV
+  const handleExport = () => {
+    const header = [
+      "Employee Name",
+      "Position",
+      "Email",
+      "Phone",
+      "Start Date",
+      "Status",
+      "Progress"
+    ];
+    const rows = filteredTasks.map(emp => [
+      emp.employeeName,
+      emp.position,
+      emp.email,
+      emp.phone,
+      emp.startDate,
+      emp.status,
+      emp.progress + "%"
+    ]);
+    const csvContent = [header, ...rows].map(r => r.map(x => `"${x}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "onboarding_report.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <MainLayout userRole="hr" title="Employee Onboarding">
@@ -52,18 +95,33 @@ export default function OnboardingPage() {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Search employees..." className="pl-10 w-64" />
+              <Input
+                placeholder="Search employees..."
+                className="pl-10 w-64"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
+            <select
+              className="border rounded px-2 py-1"
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="not-started">Not Started</option>
+              <option value="overdue">Overdue</option>
+            </select>
+            <Button variant="outline" onClick={() => { setSearchTerm(""); setStatusFilter(""); }}>
+              Clear Filters
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleExport}>
               <Download className="w-4 h-4 mr-2" />
               Export Report
             </Button>
           </div>
-          <Button>
+          <Button onClick={() => router.push("/hr/onboarding/add")}> {/* or open a dialog */}
             <Plus className="w-4 h-4 mr-2" />
             Start Onboarding
           </Button>
@@ -71,7 +129,7 @@ export default function OnboardingPage() {
 
         {/* Onboarding Progress Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {onboardingTasks.map((employee) => (
+          {filteredTasks.map((employee) => (
             <Card key={employee.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

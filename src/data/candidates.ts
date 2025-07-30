@@ -1,6 +1,4 @@
-import { Candidate } from "@/types/candidate"
-
-export const candidates: Candidate[] = [
+export const candidates = [
   {
     id: 1,
     name: "Alice Johnson",
@@ -51,56 +49,5 @@ export const candidates: Candidate[] = [
     skills: ["Figma", "User Research", "Prototyping", "Design Systems"],
     salary: "$85,000",
     avatar: "/api/placeholder/40/40"
-  },
-  {
-    id: 4,
-    name: "David Wilson",
-    email: "david.wilson@email.com",
-    phone: "+1 (555) 456-7890",
-    position: "Data Analyst",
-    location: "Chicago, IL",
-    experience: "3 years",
-    education: "MS Data Science",
-    status: "On Hold",
-    stage: "Technical Assessment",
-    appliedDate: "2024-01-10",
-    resumeUrl: "/resumes/david-wilson.pdf",
-    skills: ["Python", "SQL", "Tableau", "Machine Learning"],
-    salary: "$75,000",
-    avatar: "/api/placeholder/40/40"
-  },
-  {
-    id: 5,
-    name: "Emma Brown",
-    email: "emma.brown@email.com",
-    phone: "+1 (555) 567-8901",
-    position: "Marketing Manager",
-    location: "Los Angeles, CA",
-    experience: "6 years",
-    education: "BA Marketing",
-    status: "Active",
-    stage: "Final Interview",
-    appliedDate: "2024-01-08",
-    resumeUrl: "/resumes/emma-brown.pdf",
-    skills: ["Digital Marketing", "SEO", "Content Strategy", "Analytics"],
-    salary: "$90,000",
-    avatar: "/api/placeholder/40/40"
-  },
-  {
-    id: 6,
-    name: "Frank Miller",
-    email: "frank.miller@email.com",
-    phone: "+1 (555) 678-9012",
-    position: "Sales Representative",
-    location: "Miami, FL",
-    experience: "2 years",
-    education: "BA Business",
-    status: "Rejected",
-    stage: "Application Review",
-    appliedDate: "2024-01-05",
-    resumeUrl: "/resumes/frank-miller.pdf",
-    skills: ["Sales", "CRM", "Negotiation", "Customer Relations"],
-    salary: "$60,000",
-    avatar: "/api/placeholder/40/40"
   }
-]
+];

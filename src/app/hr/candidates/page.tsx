@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Download, Mail, Phone, MapPin, Calendar, User, GraduationCap, Briefcase } from "lucide-react"
+import { Search, Filter, MoreHorizontal, Eye, Edit, Download, Mail, Phone, MapPin, Calendar, User, GraduationCap, Briefcase } from "lucide-react"
 
 const candidates = [
   {
@@ -157,10 +157,7 @@ export default function CandidatesPage() {
               Export
             </Button>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Candidate
-          </Button>
+            
         </div>
 
         {/* Candidates Grid */}

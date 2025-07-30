@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Search, Filter, User, Clock, MapPin, CheckCircle, AlertTriangle, Calendar, Edit, Trash2, Play, Pause } from "lucide-react"
+import { Plus, Search, User, Clock, MapPin, CheckCircle, AlertTriangle, Calendar, Edit, Play } from "lucide-react"
 import { useState } from "react"
 
 type CleaningTask = {
