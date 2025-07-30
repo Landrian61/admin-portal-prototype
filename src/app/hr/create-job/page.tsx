@@ -4,10 +4,11 @@ import { MainLayout } from "@/components/layout/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Briefcase, MapPin, DollarSign, Calendar, Users, Building, ArrowLeft } from "lucide-react"
+import { MapPin, DollarSign, Building } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+
 
 export default function CreateJobPage() {
   return (

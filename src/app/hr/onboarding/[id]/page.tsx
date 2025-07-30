@@ -46,10 +46,12 @@ const getStatusColor = (status: string) => {
 const formatDate = (dateString: string) => {
   try {
     return format(parseISO(dateString), 'MM/dd/yyyy')
-  } catch (e) {
+  } catch {
     return dateString
   }
 }
+
+// ...existing code...
 
 export default function OnboardingDetailsPage({ params }: OnboardingDetailsPageProps) {
   const router = useRouter()

@@ -3,13 +3,14 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { User, Mail, Phone, MapPin, Calendar, Edit, Shield, Lock, Unlock } from "lucide-react";
+import { User as UserType } from "@/types/admin";
 
 interface UserCardProps {
-  user: any;
+  user: UserType;
   getStatusColor: (status: string) => string;
   getRoleColor: (role: string) => string;
-  onEdit: (user: any) => void;
-  onPermissions: (user: any) => void;
+  onEdit: (user: UserType) => void;
+  onPermissions: (user: UserType) => void;
   onToggleLock: (userId: number) => void;
 }
 

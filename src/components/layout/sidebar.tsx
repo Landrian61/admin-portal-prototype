@@ -10,7 +10,6 @@ import {
   ClipboardList,
   UserCheck,
   Clock,
-  Briefcase,
   Settings,
   BarChart3,
   Shield,
@@ -56,32 +55,33 @@ const navigationItems = {
 export function Sidebar({ userRole }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
-  const items = navigationItems[userRole]
+
+  const currentItems = navigationItems[userRole] || []
 
   return (
     <>
       {/* Mobile menu button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-primary text-white md:hidden"
+        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md md:hidden"
       >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
+        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
       {/* Sidebar */}
-      <div className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 bg-primary text-white transform transition-transform duration-300 ease-in-out md:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-0",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-center h-16 px-4 border-b border-primary-600">
+          <div className="flex items-center justify-center h-16 px-4 bg-primary text-white">
             <h1 className="text-xl font-bold">AIBOS</h1>
           </div>
-
-          {/* Navigation */}
+          
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {items.map((item) => {
+            {currentItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
               
@@ -90,38 +90,23 @@ export function Sidebar({ userRole }: SidebarProps) {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors",
                     isActive
-                      ? "bg-primary-600 text-white"
-                      : "text-primary-100 hover:bg-primary-600 hover:text-white"
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   )}
                   onClick={() => setIsOpen(false)}
                 >
-                  <Icon className="mr-3 h-5 w-5" />
+                  <Icon className="w-5 h-5 mr-3" />
                   {item.name}
                 </Link>
               )
             })}
           </nav>
-
-          {/* User info */}
-          <div className="px-4 py-4 border-t border-primary-600">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white capitalize">{userRole} User</p>
-                <p className="text-xs text-primary-100">user@aibos.com</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-black bg-opacity-50 md:hidden"
@@ -131,4 +116,3 @@ export function Sidebar({ userRole }: SidebarProps) {
     </>
   )
 }
-

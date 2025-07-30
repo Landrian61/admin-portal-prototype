@@ -1,11 +1,10 @@
-import React from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Filter, Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Search, Filter, Download, Plus, X } from "lucide-react";
 
 interface HeaderActionsProps {
   searchTerm: string;
-  onSearch: (val: string) => void;
+  onSearch: (value: string) => void;
   onShowFilter: () => void;
   onExport: () => void;
   onAddUser: () => void;
@@ -13,15 +12,15 @@ interface HeaderActionsProps {
   filtersActive: boolean;
 }
 
-export const HeaderActions: React.FC<HeaderActionsProps> = ({
-  searchTerm,
-  onSearch,
-  onShowFilter,
-  onExport,
-  onAddUser,
-  onClear,
-  filtersActive,
-}) => {
+export function HeaderActions({ 
+  searchTerm, 
+  onSearch, 
+  onShowFilter, 
+  onExport, 
+  onAddUser, 
+  onClear, 
+  filtersActive 
+}: HeaderActionsProps) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div className="flex items-center space-x-4">
@@ -43,8 +42,9 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
           Export
         </Button>
         {filtersActive && (
-          <Button variant="outline" onClick={onClear} size="sm">
-            Clear Filters
+          <Button variant="outline" onClick={onClear}>
+            <X className="w-4 h-4 mr-2" />
+            Clear
           </Button>
         )}
       </div>
@@ -54,4 +54,4 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
       </Button>
     </div>
   );
-}; 
+}

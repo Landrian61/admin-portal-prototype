@@ -1,34 +1,49 @@
-import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface UserPermissionsDialogProps {
   open: boolean;
   allPermissions: string[];
   selected: string[];
-  onToggle: (perm: string) => void;
+  onToggle: (permission: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 }
 
-export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({ open, allPermissions, selected, onToggle, onSubmit, onCancel }) => {
-  if (!open) return null;
+export function UserPermissionsDialog({ 
+  open, 
+  allPermissions, 
+  selected, 
+  onToggle, 
+  onSubmit, 
+  onCancel 
+}: UserPermissionsDialogProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <form onSubmit={onSubmit} className="bg-white p-6 rounded shadow-lg min-w-[350px] max-w-[90vw]">
-        <h2 className="text-lg font-bold mb-4">Edit Permissions</h2>
-        <div className="grid grid-cols-1 gap-2 mb-4">
-          {allPermissions.map((perm) => (
-            <label key={perm} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={selected.includes(perm)} onChange={() => onToggle(perm)} />
-              {perm}
-            </label>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <Button type="submit">Save</Button>
-          <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-        </div>
-      </form>
-    </div>
+    <Dialog open={open} onOpenChange={() => onCancel()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Manage Permissions</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
+            {allPermissions.map((permission) => (
+              <label key={permission} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(permission)}
+                  onChange={() => onToggle(permission)}
+                  className="rounded"
+                />
+                <span className="text-sm">{permission}</span>
+              </label>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+            <Button type="submit">Save Permissions</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
-}; 
+}

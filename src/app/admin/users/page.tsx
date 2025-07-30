@@ -1,6 +1,7 @@
 "use client";
 
 import { MainLayout } from "@/components/layout/main-layout";
+import { User } from "@/types/admin";
 import {
   Card,
   CardContent,
@@ -9,33 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Plus,
-  Search,
-  Filter,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Edit,
-  Trash2,
-  Lock,
-  Unlock,
-  Download,
-  Shield,
-  Key,
-  UserPlus,
-  Settings,
-} from "lucide-react";
 import React, { useState } from "react";
 import { UserGrid } from "@/components/admin/users/UserGrid";
 import { UserEditDialog } from "@/components/admin/users/UserEditDialog";
 import { UserPermissionsDialog } from "@/components/admin/users/UserPermissionsDialog";
 import { UserFilterModal } from "@/components/admin/users/UserFilterModal";
 import { HeaderActions } from "@/components/admin/users/HeaderActions";
+import { User as UserIconComponent } from "lucide-react";
 
 const users = [
   {
@@ -212,7 +193,7 @@ const getActivityTypeColor = (type: string) => {
 export default function AdminUserManagementPage() {
   const [userList, setUserList] = useState(users);
   const [editUser, setEditUser] = useState<null | (typeof users)[0]>(null);
-  const [editUserForm, setEditUserForm] = useState<any>(null);
+  const [editUserForm, setEditUserForm] = useState<User | null>(null);
   const [permissionsUser, setPermissionsUser] = useState<
     null | (typeof users)[0]
   >(null);
@@ -338,26 +319,28 @@ export default function AdminUserManagementPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    let fieldValue: any = value;
+    let fieldValue: string | boolean = value;
     if (type === "checkbox") {
       fieldValue = (e.target as HTMLInputElement).checked;
     }
-    setEditUserForm((prev: any) => ({
+    setEditUserForm((prev) => prev ? ({
       ...prev,
       [name]: fieldValue,
-    }));
+    }) : null);
   };
 
   // Handle edit user form submit
   const handleEditUserSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setUserList((prev) =>
-      prev.map((u) =>
-        u.id === editUserForm.id
-          ? { ...editUserForm, permissions: u.permissions }
-          : u
-      )
-    );
+    if (editUserForm) {
+      setUserList((prev) =>
+        prev.map((u) =>
+          u.id === editUserForm.id
+            ? { ...editUserForm, permissions: u.permissions }
+            : u
+        )
+      );
+    }
     setEditUser(null);
   };
 
@@ -494,7 +477,7 @@ export default function AdminUserManagementPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
+                      <UserIconComponent className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">

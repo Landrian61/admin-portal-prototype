@@ -8,12 +8,7 @@ interface QuickStatsProps {
   securityAlerts: number;
 }
 
-const QuickStats: React.FC<QuickStatsProps> = ({
-  activeRoles,
-  totalUsers,
-  permissions,
-  securityAlerts,
-}) => {
+const QuickStats: React.FC<QuickStatsProps> = ({ activeRoles, totalUsers, permissions, securityAlerts }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card>
@@ -35,7 +30,7 @@ const QuickStats: React.FC<QuickStatsProps> = ({
       <Card>
         <CardContent className="p-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-600">{permissions}</div>
+            <div className="text-2xl font-bold text-purple-600">{permissions}</div>
             <div className="text-sm text-gray-600">Permissions</div>
           </div>
         </CardContent>
@@ -52,4 +47,4 @@ const QuickStats: React.FC<QuickStatsProps> = ({
   );
 };
 
-export default QuickStats; 
+export default QuickStats;

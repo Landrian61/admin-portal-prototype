@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Filter, User, Calendar, CheckCircle, Clock, AlertTriangle, FileText, Download, Mail, Phone } from "lucide-react"
+import { Plus, Search, User, Calendar, CheckCircle, Clock, AlertTriangle, FileText, Download, Mail, Phone } from "lucide-react"
 import { format, parseISO } from 'date-fns'
 import { onboardingTasks } from "@/data/onboarding"
 import { useState } from "react"

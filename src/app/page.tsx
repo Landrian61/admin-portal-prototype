@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -80,7 +78,7 @@ export default function Home() {
                 <div>• User Management</div>
                 <div>• Access Control</div>
                 <div>• System Settings</div>
-                <div>• System Maintenance</div>
+                <div>• System Monitoring</div>
               </div>
               <Link href="/admin">
                 <Button className="w-full">Access Admin Portal</Button>
@@ -88,14 +86,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
-
-        <div className="text-center mt-12">
-          <p className="text-sm text-gray-500">
-            © 2024 AIBOS. All rights reserved.
-          </p>
-        </div>
       </div>
     </div>
   )
 }
-

@@ -12,20 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Plus,
-  Search,
-  Filter,
-  Shield,
-  Users,
-  Key,
-  Lock,
-  Unlock,
-  Edit,
-  Trash2,
   AlertTriangle,
   CheckCircle,
-  Eye,
-  Settings,
 } from "lucide-react";
 import React, { useState } from "react";
 import {
@@ -35,6 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Role, NewRoleData } from "@/types/admin";
 import RoleManagement from "@/components/admin/access/RoleManagement";
 import PermissionManagement from "@/components/admin/access/PermissionManagement";
 import AuditLogDialog from "@/components/admin/access/AuditLogDialog";
@@ -229,17 +218,6 @@ const getStatusColor = (status: string) => {
   return colors[status] || "bg-gray-100 text-gray-800";
 };
 
-const getCategoryColor = (category: string) => {
-  const colors: { [key: string]: string } = {
-    Administration: "bg-red-100 text-red-800",
-    System: "bg-purple-100 text-purple-800",
-    HR: "bg-blue-100 text-blue-800",
-    GA: "bg-green-100 text-green-800",
-    Finance: "bg-yellow-100 text-yellow-800",
-  };
-  return colors[category] || "bg-gray-100 text-gray-800";
-};
-
 // Mock users for assignment
 const allUsers = [
   "John Smith",
@@ -287,12 +265,12 @@ export default function AccessControlPage() {
   });
   // Dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [roleToDelete, setRoleToDelete] = useState<any>(null);
+  const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [roleToEdit, setRoleToEdit] = useState<any>(null);
-  const [editRoleData, setEditRoleData] = useState<any>(null);
+  const [roleToEdit, setRoleToEdit] = useState<Role | null>(null);
+  const [editRoleData, setEditRoleData] = useState<Role | null>(null);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [roleToAssign, setRoleToAssign] = useState<any>(null);
+  const [roleToAssign, setRoleToAssign] = useState<Role | null>(null);
   const [assignedUsers, setAssignedUsers] = useState<{
     [roleId: number]: string[];
   }>(() => {
@@ -304,7 +282,7 @@ export default function AccessControlPage() {
     return initial;
   });
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newRoleData, setNewRoleData] = useState<any>({
+  const [newRoleData, setNewRoleData] = useState<NewRoleData>({
     name: "",
     description: "",
     permissions: [""],
@@ -313,13 +291,13 @@ export default function AccessControlPage() {
   });
   const [auditLogDialogOpen, setAuditLogDialogOpen] = useState(false);
 
-  const handleDeleteRole = (role: any) => {
+  const handleDeleteRole = (role: Role) => {
     setRoleToDelete(role);
     setDeleteDialogOpen(true);
   };
 
   const confirmDeleteRole = () => {
-    setRolesState((prev) => prev.filter((r) => r.id !== roleToDelete.id));
+    setRolesState((prev) => prev.filter((r) => r.id !== roleToDelete?.id));
     setDeleteDialogOpen(false);
     setRoleToDelete(null);
   };
@@ -329,18 +307,19 @@ export default function AccessControlPage() {
     setRoleToDelete(null);
   };
 
-  const handleEditRole = (role: any) => {
+  const handleEditRole = (role: Role) => {
     setRoleToEdit(role);
     setEditRoleData({ ...role });
     setEditDialogOpen(true);
   };
 
-  const handleEditRoleChange = (field: string, value: any) => {
-    setEditRoleData((prev: any) => ({ ...prev, [field]: value }));
+  const handleEditRoleChange = (field: string, value: string) => {
+    setEditRoleData((prev) => prev ? ({ ...prev, [field]: value }) : null);
   };
 
   const handleEditRolePermissionChange = (index: number, value: string) => {
-    setEditRoleData((prev: any) => {
+    setEditRoleData((prev) => {
+      if (!prev) return null;
       const newPerms = [...prev.permissions];
       newPerms[index] = value;
       return { ...prev, permissions: newPerms };
@@ -348,14 +327,15 @@ export default function AccessControlPage() {
   };
 
   const handleAddPermissionField = () => {
-    setEditRoleData((prev: any) => ({
+    setEditRoleData((prev) => prev ? ({
       ...prev,
       permissions: [...prev.permissions, ""],
-    }));
+    }) : null);
   };
 
   const handleRemovePermissionField = (index: number) => {
-    setEditRoleData((prev: any) => {
+    setEditRoleData((prev) => {
+      if (!prev) return null;
       const newPerms = [...prev.permissions];
       newPerms.splice(index, 1);
       return { ...prev, permissions: newPerms };
@@ -363,13 +343,15 @@ export default function AccessControlPage() {
   };
 
   const saveEditRole = () => {
-    setRolesState((prev) =>
-      prev.map((r) =>
-        r.id === editRoleData.id
-          ? { ...editRoleData, userCount: r.userCount }
-          : r
-      )
-    );
+    if (editRoleData && roleToEdit) {
+      setRolesState((prev) =>
+        prev.map((r) =>
+          r.id === roleToEdit.id
+            ? { ...editRoleData, userCount: r.userCount }
+            : r
+        )
+      );
+    }
     setEditDialogOpen(false);
     setRoleToEdit(null);
     setEditRoleData(null);
@@ -381,32 +363,34 @@ export default function AccessControlPage() {
     setEditRoleData(null);
   };
 
-  const handleAssignRole = (role: any) => {
+  const handleAssignRole = (role: Role) => {
     setRoleToAssign(role);
     setAssignDialogOpen(true);
   };
 
   const handleAssignUserChange = (user: string, checked: boolean) => {
     setAssignedUsers((prev) => {
-      const current = prev[roleToAssign.id] || [];
+      const current = prev[roleToAssign?.id || 0] || [];
       let updated;
       if (checked) {
         updated = [...current, user];
       } else {
         updated = current.filter((u) => u !== user);
       }
-      return { ...prev, [roleToAssign.id]: updated };
+      return { ...prev, [roleToAssign?.id || 0]: updated };
     });
   };
 
   const saveAssignUsers = () => {
-    setRolesState((prev) =>
-      prev.map((r) =>
-        r.id === roleToAssign.id
-          ? { ...r, userCount: assignedUsers[roleToAssign.id]?.length || 0 }
-          : r
-      )
-    );
+    if (roleToAssign) {
+      setRolesState((prev) =>
+        prev.map((r) =>
+          r.id === roleToAssign.id
+            ? { ...r, userCount: assignedUsers[roleToAssign.id]?.length || 0 }
+            : r
+        )
+      );
+    }
     setAssignDialogOpen(false);
     setRoleToAssign(null);
   };
@@ -427,12 +411,12 @@ export default function AccessControlPage() {
     setCreateDialogOpen(true);
   };
 
-  const handleNewRoleChange = (field: string, value: any) => {
-    setNewRoleData((prev: any) => ({ ...prev, [field]: value }));
+  const handleNewRoleChange = (field: string, value: string) => {
+    setNewRoleData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleNewRolePermissionChange = (index: number, value: string) => {
-    setNewRoleData((prev: any) => {
+    setNewRoleData((prev) => {
       const newPerms = [...prev.permissions];
       newPerms[index] = value;
       return { ...prev, permissions: newPerms };
@@ -440,14 +424,14 @@ export default function AccessControlPage() {
   };
 
   const handleAddNewPermissionField = () => {
-    setNewRoleData((prev: any) => ({
+    setNewRoleData((prev) => ({
       ...prev,
       permissions: [...prev.permissions, ""],
     }));
   };
 
   const handleRemoveNewPermissionField = (index: number) => {
-    setNewRoleData((prev: any) => {
+    setNewRoleData((prev) => {
       const newPerms = [...prev.permissions];
       newPerms.splice(index, 1);
       return { ...prev, permissions: newPerms };

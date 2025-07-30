@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Download, Mail, Phone, MapPin, Calendar, User, GraduationCap, Briefcase } from "lucide-react"
+import { Search, Filter, MoreHorizontal, Eye, Edit, Download, Mail, Phone, MapPin, Calendar, User, GraduationCap, Briefcase } from "lucide-react"
 
 const candidates = [
   {
