@@ -340,6 +340,16 @@ export default function InterviewsPage() {
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState<any>(null);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [rescheduleData, setRescheduleData] = useState({
+    date: "",
+    time: "",
+    duration: "",
+    interviewer: "",
+    location: "",
+    mode: "",
+    notes: "",
+  });
 
   // Get unique filter options
   const statuses = useMemo(() => {
@@ -464,6 +474,65 @@ Generated on: ${new Date().toLocaleDateString("en-US", {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handleRescheduleInterview = (interview: any) => {
+    setSelectedInterview(interview);
+    setRescheduleData({
+      date: "",
+      time: "",
+      duration: interview.duration,
+      interviewer: interview.interviewer,
+      location: interview.location,
+      mode: interview.mode,
+      notes: `Rescheduled from ${new Date(interview.date).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      )} at ${interview.time}. Original notes: ${interview.notes}`,
+    });
+    setShowRescheduleModal(true);
+  };
+
+  const handleConfirmReschedule = () => {
+    if (!rescheduleData.date || !rescheduleData.time) {
+      alert("Please fill in all required fields (Date and Time)");
+      return;
+    }
+
+    setInterviewsList((prevInterviews) =>
+      prevInterviews.map((interview) =>
+        interview.id === selectedInterview.id
+          ? {
+              ...interview,
+              date: rescheduleData.date,
+              time: rescheduleData.time,
+              duration: rescheduleData.duration,
+              interviewer: rescheduleData.interviewer,
+              location: rescheduleData.location,
+              mode: rescheduleData.mode,
+              notes: rescheduleData.notes,
+              status: "Scheduled",
+            }
+          : interview
+      )
+    );
+
+    // Reset modal state
+    setShowRescheduleModal(false);
+    setSelectedInterview(null);
+    setRescheduleData({
+      date: "",
+      time: "",
+      duration: "",
+      interviewer: "",
+      location: "",
+      mode: "",
+      notes: "",
+    });
   };
 
   return (
@@ -829,7 +898,12 @@ Generated on: ${new Date().toLocaleDateString("en-US", {
                       </Button>
                     )}
                     {interview.status === "Cancelled" && (
-                      <Button size="sm" variant="outline" className="w-full">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handleRescheduleInterview(interview)}
+                      >
                         Reschedule
                       </Button>
                     )}
@@ -981,6 +1055,238 @@ Generated on: ${new Date().toLocaleDateString("en-US", {
                     onClick={() => handleExportFeedback(selectedInterview)}
                   >
                     Export Feedback
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reschedule Modal */}
+        {showRescheduleModal && selectedInterview && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Reschedule Interview
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      {selectedInterview.candidateName} •{" "}
+                      {selectedInterview.position}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowRescheduleModal(false);
+                      setSelectedInterview(null);
+                      setRescheduleData({
+                        date: "",
+                        time: "",
+                        duration: "",
+                        interviewer: "",
+                        location: "",
+                        mode: "",
+                        notes: "",
+                      });
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {/* Original Interview Details */}
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <h3 className="text-sm font-semibold text-red-800 mb-2">
+                    Original Interview (Cancelled)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-2 text-red-600" />
+                      <span className="text-red-700">
+                        {new Date(selectedInterview.date).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 mr-2 text-red-600" />
+                      <span className="text-red-700">
+                        {selectedInterview.time} ({selectedInterview.duration})
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <User className="w-4 h-4 mr-2 text-red-600" />
+                      <span className="text-red-700">
+                        {selectedInterview.interviewer}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      {getModeIcon(selectedInterview.mode)}
+                      <span className="ml-2 text-red-700">
+                        {selectedInterview.location}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reschedule Form */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">
+                        New Date *
+                      </Label>
+                      <Input
+                        type="date"
+                        value={rescheduleData.date}
+                        onChange={(e) =>
+                          setRescheduleData({
+                            ...rescheduleData,
+                            date: e.target.value,
+                          })
+                        }
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">
+                        New Time *
+                      </Label>
+                      <Input
+                        type="time"
+                        value={rescheduleData.time}
+                        onChange={(e) =>
+                          setRescheduleData({
+                            ...rescheduleData,
+                            time: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">
+                        Duration
+                      </Label>
+                      <Input
+                        value={rescheduleData.duration}
+                        onChange={(e) =>
+                          setRescheduleData({
+                            ...rescheduleData,
+                            duration: e.target.value,
+                          })
+                        }
+                        placeholder="e.g., 60 minutes"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">
+                        Interviewer
+                      </Label>
+                      <Input
+                        value={rescheduleData.interviewer}
+                        onChange={(e) =>
+                          setRescheduleData({
+                            ...rescheduleData,
+                            interviewer: e.target.value,
+                          })
+                        }
+                        placeholder="Interviewer name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">
+                        Location
+                      </Label>
+                      <Input
+                        value={rescheduleData.location}
+                        onChange={(e) =>
+                          setRescheduleData({
+                            ...rescheduleData,
+                            location: e.target.value,
+                          })
+                        }
+                        placeholder="Interview location"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">
+                        Mode
+                      </Label>
+                      <Select
+                        value={rescheduleData.mode}
+                        onValueChange={(value) =>
+                          setRescheduleData({ ...rescheduleData, mode: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="In-Person">In-Person</SelectItem>
+                          <SelectItem value="Video Call">Video Call</SelectItem>
+                          <SelectItem value="Phone Call">Phone Call</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Notes
+                    </Label>
+                    <textarea
+                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={4}
+                      value={rescheduleData.notes}
+                      onChange={(e) =>
+                        setRescheduleData({
+                          ...rescheduleData,
+                          notes: e.target.value,
+                        })
+                      }
+                      placeholder="Additional notes for the rescheduled interview..."
+                    />
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowRescheduleModal(false);
+                      setSelectedInterview(null);
+                      setRescheduleData({
+                        date: "",
+                        time: "",
+                        duration: "",
+                        interviewer: "",
+                        location: "",
+                        mode: "",
+                        notes: "",
+                      });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleConfirmReschedule}>
+                    Confirm Reschedule
                   </Button>
                 </div>
               </div>
