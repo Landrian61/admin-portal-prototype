@@ -1,12 +1,41 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { MainLayout } from "@/components/layout/main-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, Filter, MoreHorizontal, Eye, Edit, Download, Mail, Phone, MapPin, Calendar, User, GraduationCap, Briefcase } from "lucide-react"
+import { useRouter } from "next/navigation";
+import { MainLayout } from "@/components/layout/main-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Search,
+  Filter,
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Download,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  User,
+  GraduationCap,
+  Briefcase,
+  X,
+} from "lucide-react";
+import { useState, useMemo } from "react";
 
 const candidates = [
   {
@@ -24,7 +53,7 @@ const candidates = [
     resumeUrl: "/resumes/alice-johnson.pdf",
     skills: ["React", "Node.js", "TypeScript", "AWS"],
     salary: "$95,000",
-    avatar: "/api/placeholder/40/40"
+    avatar: "/api/placeholder/40/40",
   },
   {
     id: 2,
@@ -41,7 +70,7 @@ const candidates = [
     resumeUrl: "/resumes/bob-smith.pdf",
     skills: ["Product Strategy", "Agile", "Analytics", "Leadership"],
     salary: "$120,000",
-    avatar: "/api/placeholder/40/40"
+    avatar: "/api/placeholder/40/40",
   },
   {
     id: 3,
@@ -58,7 +87,7 @@ const candidates = [
     resumeUrl: "/resumes/carol-davis.pdf",
     skills: ["Figma", "User Research", "Prototyping", "Design Systems"],
     salary: "$85,000",
-    avatar: "/api/placeholder/40/40"
+    avatar: "/api/placeholder/40/40",
   },
   {
     id: 4,
@@ -75,7 +104,7 @@ const candidates = [
     resumeUrl: "/resumes/david-wilson.pdf",
     skills: ["Python", "SQL", "Tableau", "Machine Learning"],
     salary: "$75,000",
-    avatar: "/api/placeholder/40/40"
+    avatar: "/api/placeholder/40/40",
   },
   {
     id: 5,
@@ -92,7 +121,7 @@ const candidates = [
     resumeUrl: "/resumes/emma-brown.pdf",
     skills: ["Digital Marketing", "SEO", "Content Strategy", "Analytics"],
     salary: "$90,000",
-    avatar: "/api/placeholder/40/40"
+    avatar: "/api/placeholder/40/40",
   },
   {
     id: 6,
@@ -101,43 +130,143 @@ const candidates = [
     phone: "+1 (555) 678-9012",
     position: "Sales Representative",
     location: "Miami, FL",
-    experience: "2 years",
+    experience: "8 years",
     education: "BA Business",
-    status: "Rejected",
-    stage: "Application Review",
+    status: "Active",
+    stage: "Offer Extended",
     appliedDate: "2024-01-05",
     resumeUrl: "/resumes/frank-miller.pdf",
-    skills: ["Sales", "CRM", "Negotiation", "Customer Relations"],
-    salary: "$60,000",
-    avatar: "/api/placeholder/40/40"
-  }
-]
+    skills: ["B2B Sales", "CRM", "Negotiation", "Relationship Building"],
+    salary: "$80,000",
+    avatar: "/api/placeholder/40/40",
+  },
+];
 
 const getStatusColor = (status: string) => {
   const colors: { [key: string]: string } = {
-    "Active": "bg-green-100 text-green-800",
+    Active: "bg-green-100 text-green-800",
     "On Hold": "bg-yellow-100 text-yellow-800",
-    "Rejected": "bg-red-100 text-red-800",
-    "Hired": "bg-blue-100 text-blue-800"
-  }
-  return colors[status] || "bg-gray-100 text-gray-800"
-}
+    Rejected: "bg-red-100 text-red-800",
+    Hired: "bg-blue-100 text-blue-800",
+  };
+  return colors[status] || "bg-gray-100 text-gray-800";
+};
 
 const getStageColor = (stage: string) => {
   const colors: { [key: string]: string } = {
-    "Application Review": "bg-gray-100 text-gray-800",
-    "Screening": "bg-blue-100 text-blue-800",
-    "Interview": "bg-purple-100 text-purple-800",
+    Screening: "bg-blue-100 text-blue-800",
+    Interview: "bg-yellow-100 text-yellow-800",
+    "Portfolio Review": "bg-purple-100 text-purple-800",
     "Technical Assessment": "bg-orange-100 text-orange-800",
-    "Portfolio Review": "bg-pink-100 text-pink-800",
-    "Final Interview": "bg-indigo-100 text-indigo-800"
-  }
-  return colors[stage] || "bg-gray-100 text-gray-800"
-}
+    "Final Interview": "bg-indigo-100 text-indigo-800",
+    "Offer Extended": "bg-green-100 text-green-800",
+  };
+  return colors[stage] || "bg-gray-100 text-gray-800";
+};
 
 export default function CandidatesPage() {
-  const router = useRouter()
-  
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [stageFilter, setStageFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Get unique filter options
+  const statuses = useMemo(() => {
+    return [...new Set(candidates.map((c) => c.status))];
+  }, []);
+
+  const stages = useMemo(() => {
+    return [...new Set(candidates.map((c) => c.stage))];
+  }, []);
+
+  const locations = useMemo(() => {
+    return [...new Set(candidates.map((c) => c.location))];
+  }, []);
+
+  // Filter candidates based on search and filters
+  const filteredCandidates = useMemo(() => {
+    return candidates.filter((candidate) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.skills.some((skill) =>
+          skill.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+      const matchesStatus =
+        statusFilter === "all" || candidate.status === statusFilter;
+      const matchesStage =
+        stageFilter === "all" || candidate.stage === stageFilter;
+      const matchesLocation =
+        locationFilter === "all" || candidate.location === locationFilter;
+
+      return matchesSearch && matchesStatus && matchesStage && matchesLocation;
+    });
+  }, [searchQuery, statusFilter, stageFilter, locationFilter]);
+
+  // Export functionality
+  const exportCandidates = () => {
+    const csvContent = [
+      // CSV header
+      [
+        "Name",
+        "Email",
+        "Phone",
+        "Position",
+        "Location",
+        "Experience",
+        "Education",
+        "Status",
+        "Stage",
+        "Applied Date",
+        "Salary",
+        "Skills",
+      ].join(","),
+      // CSV data
+      ...filteredCandidates.map((candidate) =>
+        [
+          candidate.name,
+          candidate.email,
+          candidate.phone,
+          candidate.position,
+          candidate.location,
+          candidate.experience,
+          candidate.education,
+          candidate.status,
+          candidate.stage,
+          candidate.appliedDate,
+          candidate.salary,
+          candidate.skills.join("; "),
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `candidates_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const clearFilters = () => {
+    setStatusFilter("all");
+    setStageFilter("all");
+    setLocationFilter("all");
+    setSearchQuery("");
+  };
+
   return (
     <MainLayout userRole="hr" title="Candidate Management">
       <div className="space-y-6">
@@ -146,24 +275,148 @@ export default function CandidatesPage() {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Search candidates..." className="pl-10 w-64" />
+              <Input
+                placeholder="Search candidates..."
+                className="pl-10 w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <Button variant="outline">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+            >
               <Filter className="w-4 h-4 mr-2" />
               Filter
+              {(statusFilter !== "all" ||
+                stageFilter !== "all" ||
+                locationFilter !== "all") && (
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {
+                    [statusFilter, stageFilter, locationFilter].filter(
+                      (f) => f !== "all"
+                    ).length
+                  }
+                </Badge>
+              )}
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={exportCandidates}>
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
           </div>
-            
+        </div>
+
+        {/* Filters */}
+        {showFilters && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Filter Candidates</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilters(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Status
+                  </label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      {statuses.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Stage
+                  </label>
+                  <Select value={stageFilter} onValueChange={setStageFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Stages" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Stages</SelectItem>
+                      {stages.map((stage) => (
+                        <SelectItem key={stage} value={stage}>
+                          {stage}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Location
+                  </label>
+                  <Select
+                    value={locationFilter}
+                    onValueChange={setLocationFilter}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Locations" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      {locations.map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex justify-end mt-4 space-x-2">
+                <Button variant="outline" onClick={clearFilters}>
+                  Clear All
+                </Button>
+                <Button onClick={() => setShowFilters(false)}>
+                  Apply Filters
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Results Summary */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Showing {filteredCandidates.length} of {candidates.length}{" "}
+            candidates
+          </p>
+          {(statusFilter !== "all" ||
+            stageFilter !== "all" ||
+            locationFilter !== "all" ||
+            searchQuery) && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          )}
         </div>
 
         {/* Candidates Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {candidates.map((candidate) => (
-            <Card key={candidate.id} className="hover:shadow-lg transition-shadow">
+          {filteredCandidates.map((candidate) => (
+            <Card
+              key={candidate.id}
+              className="hover:shadow-lg transition-shadow"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
@@ -171,7 +424,9 @@ export default function CandidatesPage() {
                       <User className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{candidate.name}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {candidate.name}
+                      </CardTitle>
                       <CardDescription>{candidate.position}</CardDescription>
                     </div>
                   </div>
@@ -180,7 +435,7 @@ export default function CandidatesPage() {
                   </Button>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 {/* Contact Info */}
                 <div className="space-y-2">
@@ -198,7 +453,15 @@ export default function CandidatesPage() {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Applied: {new Date(candidate.appliedDate).toLocaleDateString()}
+                    Applied:{" "}
+                    {new Date(candidate.appliedDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      }
+                    )}
                   </div>
                 </div>
 
@@ -216,10 +479,16 @@ export default function CandidatesPage() {
 
                 {/* Skills */}
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Skills:
+                  </p>
                   <div className="flex flex-wrap gap-1">
                     {candidate.skills.slice(0, 3).map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {skill}
                       </Badge>
                     ))}
@@ -234,80 +503,48 @@ export default function CandidatesPage() {
                 {/* Status & Stage */}
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <Badge className={getStatusColor(candidate.status)} variant="secondary">
+                    <Badge
+                      className={getStatusColor(candidate.status)}
+                      variant="secondary"
+                    >
                       {candidate.status}
                     </Badge>
-                    <Badge className={getStageColor(candidate.stage)} variant="secondary">
+                    <Badge
+                      className={getStageColor(candidate.stage)}
+                      variant="secondary"
+                    >
                       {candidate.stage}
                     </Badge>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{candidate.salary}</p>
-                    <p className="text-xs text-gray-500">Expected</p>
+                  <div className="flex space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        router.push(`/hr/candidates/${candidate.id}`)
+                      }
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex space-x-2 pt-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => router.push(`/hr/candidates/${candidate.id}`)}
-                  >
-                    <Eye className="w-4 h-4 mr-1" />
-                    View
-                  </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Download className="w-4 h-4" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">4</div>
-                <div className="text-sm text-gray-600">Active Candidates</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">1</div>
-                <div className="text-sm text-gray-600">On Hold</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">1</div>
-                <div className="text-sm text-gray-600">Rejected</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">0</div>
-                <div className="text-sm text-gray-600">Hired</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {filteredCandidates.length === 0 && (
+          <div className="text-center py-12">
+            <User className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No candidates found
+            </h3>
+            <p className="text-gray-600">
+              Try adjusting your search or filter criteria.
+            </p>
+          </div>
+        )}
       </div>
     </MainLayout>
-  )
+  );
 }
-

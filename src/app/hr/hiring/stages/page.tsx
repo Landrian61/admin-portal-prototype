@@ -195,10 +195,7 @@ export default function AllStagesView() {
             <ArrowLeft className="w-4 h-4" />
             Back to Hiring Board
           </Button>
-          <Button className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Add Candidate
-          </Button>
+          
         </div>
 
         {/* Search and Filter */}

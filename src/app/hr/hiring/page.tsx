@@ -275,7 +275,7 @@ export default function HiringProcess() {
             onClick={() => router.push(`/hr/hiring/stages`)}
             className="px-8 py-3"
           >
-            View All Stages
+            View All
           </Button>
         </div>
 
