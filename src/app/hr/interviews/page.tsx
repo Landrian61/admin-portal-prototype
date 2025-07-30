@@ -338,6 +338,8 @@ export default function InterviewsPage() {
   const [modeFilter, setModeFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState<any>(null);
 
   // Get unique filter options
   const statuses = useMemo(() => {
@@ -406,6 +408,62 @@ export default function InterviewsPage() {
           : interview
       )
     );
+  };
+
+  const handleViewFeedback = (interview: any) => {
+    setSelectedInterview(interview);
+    setShowFeedbackModal(true);
+  };
+
+  const handleExportFeedback = (interview: any) => {
+    // Create the feedback content
+    const feedbackContent = `
+Interview Feedback Report
+========================
+
+Candidate Information:
+- Name: ${interview.candidateName}
+- Position: ${interview.position}
+- Interview Type: ${interview.type}
+
+Interview Details:
+- Date: ${new Date(interview.date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}
+- Time: ${interview.time} (${interview.duration})
+- Interviewer: ${interview.interviewer}
+- Location: ${interview.location}
+- Mode: ${interview.mode}
+
+Interview Notes:
+${interview.notes}
+
+Interview Feedback:
+${interview.feedback}
+
+Generated on: ${new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })} at ${new Date().toLocaleTimeString("en-US")}
+    `.trim();
+
+    // Create and download the file
+    const blob = new Blob([feedbackContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `interview-feedback-${interview.candidateName
+      .replace(/\s+/g, "-")
+      .toLowerCase()}-${
+      new Date(interview.date).toISOString().split("T")[0]
+    }.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -761,7 +819,12 @@ export default function InterviewsPage() {
                       </>
                     )}
                     {interview.status === "Completed" && (
-                      <Button size="sm" variant="outline" className="w-full">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handleViewFeedback(interview)}
+                      >
                         View Feedback
                       </Button>
                     )}
@@ -789,6 +852,139 @@ export default function InterviewsPage() {
             <p className="text-gray-600">
               Try adjusting your search or filter criteria.
             </p>
+          </div>
+        )}
+
+        {/* Feedback Modal */}
+        {showFeedbackModal && selectedInterview && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Interview Feedback
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      {selectedInterview.candidateName} •{" "}
+                      {selectedInterview.position}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowFeedbackModal(false);
+                      setSelectedInterview(null);
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {/* Interview Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center text-sm">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-gray-700">
+                      {new Date(selectedInterview.date).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-gray-700">
+                      {selectedInterview.time} ({selectedInterview.duration})
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <User className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-gray-700">
+                      {selectedInterview.interviewer}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    {getModeIcon(selectedInterview.mode)}
+                    <span className="ml-2 text-gray-700">
+                      {selectedInterview.location}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Feedback Content */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Interview Feedback
+                    </h3>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm text-green-800">
+                            {selectedInterview.feedback}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Interview Notes */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Interview Notes
+                    </h3>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-800">
+                        {selectedInterview.notes}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Interview Type */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Interview Type
+                    </h3>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <Badge
+                        className="bg-blue-100 text-blue-800"
+                        variant="secondary"
+                      >
+                        {selectedInterview.type}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowFeedbackModal(false);
+                      setSelectedInterview(null);
+                    }}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={() => handleExportFeedback(selectedInterview)}
+                  >
+                    Export Feedback
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
