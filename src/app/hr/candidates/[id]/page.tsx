@@ -235,7 +235,11 @@ export default function CandidateDetails() {
                 <Calendar className="w-4 h-4 text-gray-500" />
                 <span className="text-sm">
                   Applied:{" "}
-                  {new Date(candidate.appliedDate).toLocaleDateString()}
+                  {new Date(candidate.appliedDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
                 </span>
               </div>
             </div>
@@ -295,7 +299,11 @@ export default function CandidateDetails() {
                       <h4 className="font-medium text-sm">{item.stage}</h4>
                       {item.date && (
                         <span className="text-xs text-gray-500">
-                          {new Date(item.date).toLocaleDateString()}
+                          {new Date(item.date).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                          })}
                         </span>
                       )}
                     </div>

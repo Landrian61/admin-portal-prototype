@@ -298,7 +298,11 @@ export default function AllStagesView() {
                               Applied:{" "}
                               {new Date(
                                 candidate.appliedDate
-                              ).toLocaleDateString()}
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              })}
                             </span>
                           </div>
                         </div>

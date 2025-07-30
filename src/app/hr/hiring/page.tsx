@@ -138,12 +138,6 @@ export default function HiringProcess() {
     });
   }, [searchQuery, selectedStage]);
 
-  // Get unique positions for filter dropdown
-  const positions = useMemo(() => {
-    const uniquePositions = [...new Set(candidates.map((c) => c.position))];
-    return uniquePositions;
-  }, []);
-
   return (
     <MainLayout userRole="hr" title="Hiring Process Management">
       <div className="space-y-6">
@@ -238,7 +232,11 @@ export default function HiringProcess() {
                                 Applied:{" "}
                                 {new Date(
                                   candidate.appliedDate
-                                ).toLocaleDateString()}
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                })}
                               </span>
                             </div>
                           </div>
@@ -277,7 +275,7 @@ export default function HiringProcess() {
             onClick={() => router.push(`/hr/hiring/stages`)}
             className="px-8 py-3"
           >
-            View All 
+            View All Stages
           </Button>
         </div>
 
