@@ -13,6 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Plus,
   Search,
   User,
@@ -24,9 +32,22 @@ import {
   Download,
   Mail,
   Phone,
+  Code,
+  Users,
+  Eye,
+  Play,
+  Settings,
+  BookOpen,
+  Shield,
+  Target,
+  CheckSquare,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { onboardingTasks } from "@/data/onboarding";
+import {
+  onboardingTasks,
+  onboardingTemplates,
+  OnboardingTemplate,
+} from "@/data/onboarding";
 import { useState } from "react";
 
 const getStatusColor = (status: string) => {
@@ -52,6 +73,53 @@ const getTaskStatusIcon = (status: string) => {
   }
 };
 
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case "setup":
+      return <Settings className="w-4 h-4 text-blue-500" />;
+    case "training":
+      return <BookOpen className="w-4 h-4 text-green-500" />;
+    case "compliance":
+      return <Shield className="w-4 h-4 text-red-500" />;
+    case "integration":
+      return <Users className="w-4 h-4 text-purple-500" />;
+    case "review":
+      return <Target className="w-4 h-4 text-orange-500" />;
+    default:
+      return <CheckSquare className="w-4 h-4 text-gray-500" />;
+  }
+};
+
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case "setup":
+      return "bg-blue-100 text-blue-800";
+    case "training":
+      return "bg-green-100 text-green-800";
+    case "compliance":
+      return "bg-red-100 text-red-800";
+    case "integration":
+      return "bg-purple-100 text-purple-800";
+    case "review":
+      return "bg-orange-100 text-orange-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+const getTemplateIcon = (iconName: string) => {
+  switch (iconName) {
+    case "Code":
+      return <Code className="w-6 h-6" />;
+    case "Users":
+      return <Users className="w-6 h-6" />;
+    case "User":
+      return <User className="w-6 h-6" />;
+    default:
+      return <FileText className="w-6 h-6" />;
+  }
+};
+
 const formatDate = (dateString: string) => {
   try {
     return format(parseISO(dateString), "MM/dd/yyyy");
@@ -60,10 +128,142 @@ const formatDate = (dateString: string) => {
   }
 };
 
+interface TemplateDetailModalProps {
+  template: OnboardingTemplate;
+  isOpen: boolean;
+  onClose: () => void;
+  onUseTemplate: (template: OnboardingTemplate) => void;
+}
+
+const TemplateDetailModal = ({
+  template,
+  isOpen,
+  onClose,
+  onUseTemplate,
+}: TemplateDetailModalProps) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            {getTemplateIcon(template.icon)}
+            {template.name}
+          </DialogTitle>
+          <DialogDescription>{template.description}</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Template Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {template.taskCount}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Tasks</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {template.estimatedDuration}
+                  </div>
+                  <div className="text-sm text-gray-600">Duration</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {template.tasks.filter((t) => t.required).length}
+                  </div>
+                  <div className="text-sm text-gray-600">Required Tasks</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Task List */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Onboarding Tasks</h3>
+            <div className="space-y-3">
+              {template.tasks.map((task, index) => (
+                <Card key={index} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="mt-1">
+                          {getCategoryIcon(task.category)}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium">{task.name}</h4>
+                            {task.required && (
+                              <Badge variant="destructive" className="text-xs">
+                                Required
+                              </Badge>
+                            )}
+                            <Badge
+                              className={getCategoryColor(task.category)}
+                              variant="secondary"
+                            >
+                              {task.category}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {task.description}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span>
+                              Estimated: {task.estimatedDays} day
+                              {task.estimatedDays !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 border-t">
+            <Button
+              onClick={() => onUseTemplate(template)}
+              className="flex-1"
+              size="lg"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Use This Template
+            </Button>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+              size="lg"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<OnboardingTemplate | null>(null);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
   // Filtered onboarding tasks
   const filteredTasks = onboardingTasks.filter((emp) => {
@@ -105,6 +305,17 @@ export default function OnboardingPage() {
     a.download = "onboarding_report.csv";
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleTemplateClick = (template: OnboardingTemplate) => {
+    setSelectedTemplate(template);
+    setIsTemplateModalOpen(true);
+  };
+
+  const handleUseTemplate = (template: OnboardingTemplate) => {
+    // Navigate to add onboarding page with template pre-selected
+    router.push(`/hr/onboarding/add?template=${template.id}`);
+    setIsTemplateModalOpen(false);
   };
 
   return (
@@ -201,47 +412,35 @@ export default function OnboardingPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium">Engineering Template</h4>
-                  <FileText className="w-4 h-4 text-gray-400" />
+              {onboardingTemplates.map((template) => (
+                <div
+                  key={template.id}
+                  className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => handleTemplateClick(template)}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      {getTemplateIcon(template.icon)}
+                      <h4 className="font-medium">{template.name}</h4>
+                    </div>
+                    <Eye className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {template.description}
+                  </p>
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="outline" className="text-xs">
+                      {template.taskCount} tasks
+                    </Badge>
+                    <span className="text-xs text-gray-500">
+                      {template.estimatedDuration}
+                    </span>
+                  </div>
+                  <Button size="sm" variant="outline" className="w-full">
+                    View Template
+                  </Button>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Standard onboarding for software engineers including technical
-                  setup and code access.
-                </p>
-                <Button size="sm" variant="outline" className="w-full">
-                  Use Template
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium">Management Template</h4>
-                  <FileText className="w-4 h-4 text-gray-400" />
-                </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Onboarding workflow for managers including leadership training
-                  and team introductions.
-                </p>
-                <Button size="sm" variant="outline" className="w-full">
-                  Use Template
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium">General Template</h4>
-                  <FileText className="w-4 h-4 text-gray-400" />
-                </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Basic onboarding workflow suitable for most roles with
-                  standard company procedures.
-                </p>
-                <Button size="sm" variant="outline" className="w-full">
-                  Use Template
-                </Button>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -369,6 +568,19 @@ export default function OnboardingPage() {
           ))}
         </div>
       </div>
+
+      {/* Template Detail Modal */}
+      {selectedTemplate && (
+        <TemplateDetailModal
+          template={selectedTemplate}
+          isOpen={isTemplateModalOpen}
+          onClose={() => {
+            setIsTemplateModalOpen(false);
+            setSelectedTemplate(null);
+          }}
+          onUseTemplate={handleUseTemplate}
+        />
+      )}
     </MainLayout>
   );
 }
