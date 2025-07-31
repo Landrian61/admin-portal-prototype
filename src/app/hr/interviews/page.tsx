@@ -31,14 +31,32 @@ import {
   Video,
   Phone,
   Edit,
-  Trash2,
   CheckCircle,
   XCircle,
   X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 
-const interviews = [
+// Define the Interview interface
+interface Interview {
+  id: number;
+  candidateName: string;
+  position: string;
+  type: string;
+  date: string;
+  time: string;
+  duration: string;
+  interviewer: string;
+  location: string;
+  mode: string;
+  status: string;
+  notes: string;
+  candidateEmail: string;
+  interviewerEmail: string;
+  feedback?: string;
+}
+
+const interviews: Interview[] = [
   {
     id: 1,
     candidateName: "Alice Johnson",
@@ -161,7 +179,7 @@ const getModeIcon = (mode: string) => {
 };
 
 // Calendar View Component
-const CalendarView = ({ interviews }: { interviews: any[] }) => {
+const CalendarView = ({ interviews }: { interviews: Interview[] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Get current month's days
@@ -192,7 +210,9 @@ const CalendarView = ({ interviews }: { interviews: any[] }) => {
 
   const getInterviewsForDate = (date: Date) => {
     const dateString = date.toISOString().split("T")[0];
-    return interviews.filter((interview) => interview.date === dateString);
+    return interviews.filter(
+      (interview: Interview) => interview.date === dateString
+    );
   };
 
   const formatDate = (date: Date) => {
@@ -339,7 +359,9 @@ export default function InterviewsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [selectedInterview, setSelectedInterview] = useState<any>(null);
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+    null
+  );
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [rescheduleData, setRescheduleData] = useState({
     date: "",
@@ -429,12 +451,12 @@ export default function InterviewsPage() {
     }
   };
 
-  const handleViewFeedback = (interview: any) => {
+  const handleViewFeedback = (interview: Interview) => {
     setSelectedInterview(interview);
     setShowFeedbackModal(true);
   };
 
-  const handleExportFeedback = (interview: any) => {
+  const handleExportFeedback = (interview: Interview) => {
     // Create the feedback content
     const feedbackContent = `
 Interview Feedback Report
@@ -485,7 +507,7 @@ Generated on: ${new Date().toLocaleDateString("en-US", {
     URL.revokeObjectURL(url);
   };
 
-  const handleRescheduleInterview = (interview: any) => {
+  const handleRescheduleInterview = (interview: Interview) => {
     setSelectedInterview(interview);
     setRescheduleData({
       date: "",
@@ -509,6 +531,11 @@ Generated on: ${new Date().toLocaleDateString("en-US", {
   const handleConfirmReschedule = () => {
     if (!rescheduleData.date || !rescheduleData.time) {
       alert("Please fill in all required fields (Date and Time)");
+      return;
+    }
+
+    if (!selectedInterview) {
+      alert("No interview selected for rescheduling");
       return;
     }
 

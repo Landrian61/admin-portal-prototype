@@ -17,12 +17,10 @@ import {
   Calendar,
   User,
   MapPin,
-  Clock,
   CheckCircle,
   Circle,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { useState } from "react";
 
 // Mock candidate data - in a real app, this would come from an API
 const candidates = [
@@ -346,15 +344,6 @@ const candidates = [
   },
 ];
 
-const stages = [
-  "Application Received",
-  "Screening",
-  "Phone Interview",
-  "In-Person Interview",
-  "Final Review",
-  "Offer Extended",
-];
-
 const getStageColor = (stage: string) => {
   const colors: { [key: string]: string } = {
     "Application Received": "bg-gray-100 text-gray-800",
@@ -400,7 +389,6 @@ export default function CandidateDetails() {
             <ArrowLeft className="w-4 h-4" />
             Back to Hiring Board
           </Button>
-          
         </div>
 
         {/* Candidate Info */}
@@ -478,7 +466,7 @@ export default function CandidateDetails() {
           <CardHeader>
             <CardTitle>Application Timeline</CardTitle>
             <CardDescription>
-              Track the candidate's progress through the hiring process
+              Track the candidate&apos;s progress through the hiring process
             </CardDescription>
           </CardHeader>
           <CardContent>
