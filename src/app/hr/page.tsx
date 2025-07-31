@@ -119,10 +119,7 @@ export default function HRDashboard() {
                 <CardTitle>Candidate Tracking</CardTitle>
                 <CardDescription>Current hiring pipeline</CardDescription>
               </div>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Candidate
-              </Button>
+          
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

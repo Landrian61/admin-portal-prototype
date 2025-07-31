@@ -1,7 +1,13 @@
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Users, Calendar, Shield } from "lucide-react"
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users, Calendar, Shield } from "lucide-react";
 
 export default function Home() {
   return (
@@ -9,61 +15,65 @@ export default function Home() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-primary mb-4">AIBOS</h1>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">GA-HR Administration Portal</h2>
-          <p className="text-gray-600">Select your role to access the appropriate dashboard</p>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            GA-HR Administration Portal
+          </h2>
+          <p className="text-gray-600">
+            Select your role to access the appropriate dashboard
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {/* HR Portal */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4">
                 <Users className="w-6 h-6 text-white" />
               </div>
               <CardTitle>HR Portal</CardTitle>
               <CardDescription>
-                Manage hiring processes, employee onboarding, leave management, and probation tracking
+                Manage hiring, onboarding, leave, and probation processes
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-gray-600 mb-6">
+            <CardContent className="flex flex-col flex-grow">
+              <div className="space-y-2 text-sm text-gray-600 mb-6 flex-grow">
                 <div>• Hiring Process Management</div>
                 <div>• Employee Onboarding</div>
                 <div>• Leave Management</div>
                 <div>• Probation Management</div>
               </div>
-              <Link href="/hr">
+              <Link href="/hr" className="mt-auto">
                 <Button className="w-full">Access HR Portal</Button>
               </Link>
             </CardContent>
           </Card>
 
           {/* GA Portal */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4">
                 <Calendar className="w-6 h-6 text-white" />
               </div>
               <CardTitle>GA Portal</CardTitle>
               <CardDescription>
-                Handle schedule management, attendance monitoring, and cleaning management
+                Manage schedules, attendance, and cleaning operations.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-gray-600 mb-6">
+            <CardContent className="flex flex-col flex-grow">
+              <div className="space-y-2 text-sm text-gray-600 mb-6 flex-grow">
                 <div>• Schedule Management</div>
                 <div>• Attendance Monitoring</div>
                 <div>• Cleaning Management</div>
                 <div>• Reports & Analytics</div>
               </div>
-              <Link href="/ga">
+              <Link href="/ga" className="mt-auto">
                 <Button className="w-full">Access GA Portal</Button>
               </Link>
             </CardContent>
           </Card>
 
           {/* Admin Portal */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4">
                 <Shield className="w-6 h-6 text-white" />
@@ -73,14 +83,14 @@ export default function Home() {
                 Manage users, access control, system settings, and maintenance
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-gray-600 mb-6">
+            <CardContent className="flex flex-col flex-grow">
+              <div className="space-y-2 text-sm text-gray-600 mb-6 flex-grow">
                 <div>• User Management</div>
                 <div>• Access Control</div>
                 <div>• System Settings</div>
                 <div>• System Monitoring</div>
               </div>
-              <Link href="/admin">
+              <Link href="/admin" className="mt-auto">
                 <Button className="w-full">Access Admin Portal</Button>
               </Link>
             </CardContent>
@@ -88,5 +98,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }
