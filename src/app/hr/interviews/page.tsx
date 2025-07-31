@@ -411,13 +411,22 @@ export default function InterviewsPage() {
   };
 
   const handleCancelInterview = (interviewId: number) => {
-    setInterviewsList((prevInterviews) =>
-      prevInterviews.map((interview) =>
-        interview.id === interviewId
-          ? { ...interview, status: "Cancelled" }
-          : interview
-      )
-    );
+    const interview = interviewsList.find((i) => i.id === interviewId);
+    if (interview) {
+      const confirmed = window.confirm(
+        `Are you sure you want to cancel the interview with ${interview.candidateName} for ${interview.position}? This action cannot be undone.`
+      );
+
+      if (confirmed) {
+        setInterviewsList((prevInterviews) =>
+          prevInterviews.map((interview) =>
+            interview.id === interviewId
+              ? { ...interview, status: "Cancelled" }
+              : interview
+          )
+        );
+      }
+    }
   };
 
   const handleViewFeedback = (interview: any) => {
@@ -881,9 +890,11 @@ Generated on: ${new Date().toLocaleDateString("en-US", {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={() => handleCancelInterview(interview.id)}
                         >
-                          <XCircle className="w-4 h-4" />
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Cancel
                         </Button>
                       </>
                     )}
